@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = '1.0'
+
+dependencies {
+    compile project(':library')
+}
