@@ -5,9 +5,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.seatgeek.sixpack.Alternative;
+import com.seatgeek.sixpack.ConvertedExperiment;
 import com.seatgeek.sixpack.Experiment;
+import com.seatgeek.sixpack.OnConvertFailure;
+import com.seatgeek.sixpack.OnConvertSuccess;
 import com.seatgeek.sixpack.OnParticipationFailure;
 import com.seatgeek.sixpack.OnParticipationSuccess;
 import com.seatgeek.sixpack.ParticipatingExperiment;
@@ -34,12 +38,35 @@ public class SixpackActivity extends ActionBarActivity {
 
         buttonColor.participate(
                 new OnParticipationSuccess() {
-                    @Override public void onParticipation(ParticipatingExperiment experiment, Alternative selectedAlternative) {
+                    @Override public void onParticipation(final ParticipatingExperiment experiment, Alternative selectedAlternative) {
                         if (SixpackModule.BUTTON_COLOR_RED.equals(selectedAlternative.getName())) {
                             colorfulButton.setBackgroundColor(Color.RED);
                         } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(selectedAlternative.getName())) {
                             colorfulButton.setBackgroundColor(Color.BLUE);
                         }
+
+                        colorfulButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                v.setOnClickListener(null);
+                                
+                                experiment.convert(
+                                        new OnConvertSuccess() {
+                                            @Override
+                                            public void onConverted(ConvertedExperiment convertedExperiment) {
+                                                Toast.makeText(SixpackActivity.this, "Converted!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        },
+                                        new OnConvertFailure() {
+                                            @Override
+                                            public void onConvertFailure(ParticipatingExperiment experiment, Throwable error) {
+                                                // uhhhh, retry?
+                                            }
+                                        }
+                                );
+                            }
+                        });
+
                         colorfulButton.setVisibility(View.VISIBLE);
                     }
                 },
