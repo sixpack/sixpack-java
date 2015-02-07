@@ -18,12 +18,9 @@ public class Sixpack {
 
     private final String clientId;
 
-    private LogLevel logLevel = DEFAULT_LOG_LEVEL;
+    private LogLevel logLevel;
 
     Sixpack(String sixpackUrl, String clientId) {
-        if (clientId == null || clientId.length() == 0) {
-            clientId = generateRandomClientId();
-        }
         this.clientId = clientId;
         this.api = getDefaultApi(sixpackUrl, clientId, logLevel);
     }

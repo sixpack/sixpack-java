@@ -1,8 +1,11 @@
 package com.seatgeek.sixpack;
 
+import com.seatgeek.sixpack.log.LogLevel;
+
 public class SixpackBuilder {
     private String sixpackUrl;
     private String clientId;
+    private LogLevel logLevel;
 
     public SixpackBuilder setSixpackUrl(String sixpackUrl) {
         this.sixpackUrl = sixpackUrl;
@@ -22,6 +25,13 @@ public class SixpackBuilder {
         if (clientId == null || clientId.length() == 0) {
             clientId = Sixpack.generateRandomClientId();
         }
-        return new Sixpack(sixpackUrl, clientId);
+
+        Sixpack sixpack = new Sixpack(sixpackUrl, clientId);
+
+        if (logLevel != null) {
+            sixpack.setLogLevel(logLevel);
+        }
+
+        return sixpack;
     }
 }
