@@ -9,16 +9,13 @@ public class ExperimentBuilder {
     private String name;
     private Set<Alternative> alternatives;
     private Alternative forcedChoice;
-    private Float trafficFraction;
+    private Double trafficFraction;
 
     public ExperimentBuilder(Sixpack sixpack) {
         this.sixpack = sixpack;
     }
 
     public ExperimentBuilder withName(String name) {
-        if (name == null || name.length() == 0) {
-            throw new IllegalArgumentException("Experiment name cannot be empty or null!");
-        }
         this.name = name;
         return this;
     }
@@ -29,10 +26,8 @@ public class ExperimentBuilder {
     }
 
     public ExperimentBuilder withAlternatives(Alternative... alternatives) {
-        if (alternatives != null) {
-            this.alternatives = new HashSet<Alternative>(alternatives.length);
-            Collections.addAll(this.alternatives, alternatives);
-        }
+        this.alternatives = new HashSet<Alternative>(alternatives.length);
+        Collections.addAll(this.alternatives, alternatives);
         return this;
     }
 

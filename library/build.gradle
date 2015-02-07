@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.5
 version = '1.0'
@@ -14,4 +15,8 @@ dependencies {
     testCompile 'nl.jqno.equalsverifier:equalsverifier:1.6'
     testCompile 'com.google.guava:guava:18.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
+}
+
+jacoco {
+    toolVersion = "0.7.1.201405082137"
 }

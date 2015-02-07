@@ -44,18 +44,20 @@ public class ExperimentTest {
         assertEquals(name, experiment.getName());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testNullNameThrows() {
-        new ExperimentBuilder(mockSixpack)
-                .withName(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NoExperimentNameException.class)
     public void testEmptyNameThrows() {
         String name = "";
 
         new ExperimentBuilder(mockSixpack)
-                .withName(name);
+                .withName(name)
+                .build();
+    }
+
+    @Test(expected = NoExperimentNameException.class)
+    public void testNullNameThrows() {
+        new ExperimentBuilder(mockSixpack)
+                .withName(null)
+                .build();
     }
 
     @Test(expected = NoExperimentNameException.class)
@@ -114,6 +116,16 @@ public class ExperimentTest {
         new ExperimentBuilder(mockSixpack)
                 .withName(name)
                 .withAlternatives(emptyAlternatives)
+                .build();
+    }
+
+    @Test(expected = NoAlternativesException.class)
+    public void testNullAlternativesThrows() {
+        String name = "test-experiment";
+
+        new ExperimentBuilder(mockSixpack)
+                .withName(name)
+                .withAlternatives()
                 .build();
     }
 
