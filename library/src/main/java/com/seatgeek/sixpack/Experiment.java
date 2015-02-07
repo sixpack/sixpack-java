@@ -7,9 +7,9 @@ public class Experiment {
     private final String name;
     private final Set<Alternative> alternatives;
     private final Alternative forcedChoice;
-    private final Float trafficFraction;
+    private final Double trafficFraction;
 
-    Experiment(Sixpack sixpack, String name, Set<Alternative> alternatives, Alternative forcedChoice, Float trafficFraction) {
+    Experiment(Sixpack sixpack, String name, Set<Alternative> alternatives, Alternative forcedChoice, Double trafficFraction) {
         this.sixpack = sixpack;
         this.name = name;
         this.alternatives = alternatives;
@@ -37,7 +37,7 @@ public class Experiment {
         return forcedChoice;
     }
 
-    public float getTrafficFraction() {
+    public Double getTrafficFraction() {
         return trafficFraction;
     }
 

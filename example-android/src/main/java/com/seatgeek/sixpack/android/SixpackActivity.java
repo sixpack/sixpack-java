@@ -49,7 +49,7 @@ public class SixpackActivity extends ActionBarActivity {
                             @Override
                             public void onClick(View v) {
                                 v.setOnClickListener(null);
-                                
+
                                 experiment.convert(
                                         new OnConvertSuccess() {
                                             @Override

@@ -61,6 +61,7 @@ public class Sixpack {
         api.participate(experiment,
                 new ArrayList<Alternative>(experiment.getAlternatives()),
                 experiment.getForcedChoice(),
+                experiment.getTrafficFraction(),
                 new Callback<ParticipateResponse>() {
 
                     public void success(ParticipateResponse participateResponse, Response response) {

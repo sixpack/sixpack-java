@@ -49,7 +49,7 @@ public class ExperimentBuilder {
         return this;
     }
 
-    public ExperimentBuilder withTrafficFraction(Float fraction) {
+    public ExperimentBuilder withTrafficFraction(Double fraction) {
         if (fraction < 0 || fraction > 1) {
             throw new BadTrafficFractionException();
         }

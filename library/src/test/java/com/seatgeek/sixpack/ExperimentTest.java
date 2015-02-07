@@ -132,11 +132,26 @@ public class ExperimentTest {
         assertEquals(test, experiment.getForcedChoice());
     }
 
+
+    @Test
+    public void testNoForcedChoice() {
+        String name = "test-experiment";
+        Alternative test = new Alternative("test");
+
+        Experiment experiment = new ExperimentBuilder(mockSixpack)
+                .withName(name)
+                .withAlternative(test)
+                .build();
+
+        assertFalse(experiment.hasForcedChoice());
+        assertNull(experiment.getForcedChoice());
+    }
+
     @Test
     public void testGetTrafficFraction() {
         String name = "test-experiment";
         Alternative test = new Alternative("test");
-        Float fraction = .5f;
+        Double fraction = .5d;
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
@@ -144,12 +159,12 @@ public class ExperimentTest {
                 .withTrafficFraction(fraction)
                 .build();
 
-        assertEquals((Object)fraction, (Object)experiment.getTrafficFraction());
+        assertEquals(fraction, experiment.getTrafficFraction());
     }
 
     @Test(expected = BadTrafficFractionException.class)
     public void testLessThanZeroTrafficFractionThrows() {
-        Float fraction = -.5f;
+        Double fraction = -.5d;
 
         new ExperimentBuilder(mockSixpack)
                 .withTrafficFraction(fraction);
@@ -157,7 +172,7 @@ public class ExperimentTest {
 
     @Test(expected = BadTrafficFractionException.class)
     public void testGreaterThanOneTrafficFractionThrows() {
-        Float fraction = 2f;
+        Double fraction = 2d;
 
         new ExperimentBuilder(mockSixpack)
                 .withTrafficFraction(fraction);
