@@ -27,6 +27,9 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
 }
 
-jacoco {
-    toolVersion = "0.7.1.201405082137"
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
 }
