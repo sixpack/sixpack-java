@@ -1,0 +1,25 @@
+language: java
+
+jdk:
+  - oraclejdk6
+  - openjdk6
+
+before_install:
+  # environment info
+  - gradle -v
+  - uname -a
+
+  # ensure gradlew is executeable
+  - chmod +x gradlew
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+
+script:
+  - ./gradlew clean :library:assemble :library:test :library:jacocoTestReport :library:coveralls
+
+after_script:
+  - coveralls
