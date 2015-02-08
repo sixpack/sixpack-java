@@ -1,4 +1,11 @@
-language: java
+language: android
+
+android:
+  components:
+    - build-tools-21.1.2
+    - extra-android-m2repository
+    - extra-google-m2repository
+    - android-21
 
 jdk:
   - oraclejdk6
