@@ -9,14 +9,17 @@ android:
 
 jdk:
   - oraclejdk8
-  
+
 before_install:
-  # environment info
-  - gradle -v
-  - uname -a
+  # for gradle output style
+  - export TERM=dumb
 
   # ensure gradlew is executeable
   - chmod +x gradlew
+  
+  # environment info
+  - ./gradlew -v
+  - uname -a
 
 sudo: false
 
