@@ -18,18 +18,18 @@ public class Sixpack {
 
     private final String clientId;
 
-    private LogLevel logLevel;
+    private LogLevel logLevel = DEFAULT_LOG_LEVEL;
 
-    Sixpack(String sixpackUrl, String clientId) {
+    Sixpack(final String sixpackUrl, final String clientId) {
         this.clientId = clientId;
         this.api = getDefaultApi(sixpackUrl, clientId, logLevel);
     }
 
-    Sixpack(SixpackApi api) {
+    Sixpack(final SixpackApi api) {
         this(api, generateRandomClientId());
     }
 
-    Sixpack(SixpackApi api, String clientId) {
+    Sixpack(final SixpackApi api, final String clientId) {
         this.api = api;
         this.clientId = clientId;
     }
@@ -59,69 +59,56 @@ public class Sixpack {
                 new ArrayList<Alternative>(experiment.getAlternatives()),
                 experiment.getForcedChoice(),
                 experiment.getTrafficFraction(),
-                new Callback<ParticipateResponse>() {
-
-                    public void success(ParticipateResponse participateResponse, Response response) {
-                        if (success != null) {
-                            success.onParticipation(new ParticipatingExperiment(Sixpack.this, experiment), participateResponse.getSelectedAlternative());
-                        }
-                    }
-
-                    public void failure(RetrofitError error) {
-                        if (failure != null) {
-                            failure.onParticipationFailed(experiment, error);
-                        }
-                    }
-                }
+                getParticipateCallback(experiment, success, failure)
         );
     }
 
     void convert(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
         api.convert(experiment.getBaseExperiment(),
-                new Callback<ConvertResponse>() {
-                    public void success(ConvertResponse convertResponse, Response response) {
-                        if (success != null) {
-                            success.onConverted(new ConvertedExperiment(Sixpack.this, experiment.getBaseExperiment()));
-                        }
-                    }
+                getConvertCallback(experiment, success, failure)
+        );
+    }
 
-                    public void failure(RetrofitError error) {
-                        if (failure != null) {
-                            failure.onConvertFailure(experiment, error);
-                        }
-                    }
-                });
+    Callback<ParticipateResponse> getParticipateCallback(final Experiment experiment, final OnParticipationSuccess success, final OnParticipationFailure failure) {
+        return new Callback<ParticipateResponse>() {
+
+            public void success(final ParticipateResponse participateResponse, final Response response) {
+                if (success != null) {
+                    success.onParticipation(new ParticipatingExperiment(Sixpack.this, experiment, participateResponse.getSelectedAlternative()));
+                }
+            }
+
+            public void failure(final RetrofitError error) {
+                if (failure != null) {
+                    failure.onParticipationFailed(experiment, error);
+                }
+            }
+        };
+    }
+
+    Callback<ConvertResponse> getConvertCallback(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
+        return new Callback<ConvertResponse>() {
+
+            public void success(final ConvertResponse convertResponse, final  Response response) {
+                if (success != null) {
+                    success.onConverted(new ConvertedExperiment(Sixpack.this, experiment.getBaseExperiment()));
+                }
+            }
+
+            public void failure(final RetrofitError error) {
+                if (failure != null) {
+                    failure.onConvertFailure(experiment, error);
+                }
+            }
+        };
     }
 
     static SixpackApi getDefaultApi(final String sixpackUrl, final String clientId, final LogLevel logLevel) {
-        Endpoint sixpackEndpoint = new Endpoint() {
-            public String getUrl() {
-                return sixpackUrl != null ? sixpackUrl : DEFAULT_URL;
-            }
+        Endpoint sixpackEndpoint = getSixpackEndpoint(sixpackUrl);
 
-            public String getName() {
-                return "SixPack";
-            }
-        };
+        RequestInterceptor clientIdInterceptor = getClientIdInterceptor(clientId);
 
-        RequestInterceptor clientIdInterceptor = new RequestInterceptor() {
-            public void intercept(RequestFacade request) {
-                request.addQueryParam("client_id", clientId);
-            }
-        };
-
-        RestAdapter.LogLevel retrofitLogLevel = RestAdapter.LogLevel.NONE;
-        switch (logLevel) {
-            case VERBOSE:
-                retrofitLogLevel = RestAdapter.LogLevel.FULL;
-                break;
-            case DEBUG:
-                retrofitLogLevel = RestAdapter.LogLevel.HEADERS_AND_ARGS;
-                break;
-            case BASIC:
-                retrofitLogLevel = RestAdapter.LogLevel.BASIC;
-                break;
-        }
+        RestAdapter.LogLevel retrofitLogLevel = getRetrofitLogLevel(logLevel);
 
         RestAdapter adapter = new RestAdapter.Builder()
                 .setEndpoint(sixpackEndpoint)
@@ -130,5 +117,39 @@ public class Sixpack {
                 .build();
 
         return adapter.create(SixpackApi.class);
+    }
+
+    static RestAdapter.LogLevel getRetrofitLogLevel(final LogLevel logLevel) {
+        if (logLevel == null) {
+            return RestAdapter.LogLevel.NONE;
+        } else if (logLevel == LogLevel.VERBOSE) {
+            return RestAdapter.LogLevel.FULL;
+        } else if (logLevel == LogLevel.DEBUG) {
+            return RestAdapter.LogLevel.HEADERS_AND_ARGS;
+        } else if (logLevel == LogLevel.BASIC) {
+            return RestAdapter.LogLevel.BASIC;
+        } else {
+            return RestAdapter.LogLevel.NONE;
+        }
+    }
+
+    static RequestInterceptor getClientIdInterceptor(final String clientId) {
+        return new RequestInterceptor() {
+            public void intercept(final RequestFacade request) {
+                request.addQueryParam("client_id", clientId);
+            }
+        };
+    }
+
+    static Endpoint getSixpackEndpoint(final String sixpackUrl) {
+        return new Endpoint() {
+            public String getUrl() {
+                return sixpackUrl != null ? sixpackUrl : DEFAULT_URL;
+            }
+
+            public String getName() {
+                return "SixPack";
+            }
+        };
     }
 }

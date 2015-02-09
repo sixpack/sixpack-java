@@ -17,6 +17,15 @@ public class SixpackBuilder {
         return this;
     }
 
+    public SixpackBuilder setLogLevel(LogLevel logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    public String getSixpackUrl() {
+        return sixpackUrl;
+    }
+
     public Sixpack build() {
         if (sixpackUrl == null || sixpackUrl.length() == 0) {
             sixpackUrl = Sixpack.DEFAULT_URL;

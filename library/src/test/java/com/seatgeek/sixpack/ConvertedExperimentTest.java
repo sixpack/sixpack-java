@@ -1,5 +1,7 @@
 package com.seatgeek.sixpack;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -9,6 +11,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ConvertedExperimentTest {
     @Mock Sixpack mockSixpack;
+
     @Mock Experiment mockExperiment;
 
     @Before
@@ -32,5 +35,10 @@ public class ConvertedExperimentTest {
         Experiment baseExperiment = convertedExperiment.getBaseExperiment();
 
         assertEquals(baseExperiment, mockExperiment);
+    }
+
+    @Test
+    public void testEquals() {
+        EqualsVerifier.forClass(ConvertedExperiment.class).suppress(Warning.NULL_FIELDS, Warning.STRICT_INHERITANCE).verify();
     }
 }

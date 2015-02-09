@@ -2,16 +2,23 @@ package com.seatgeek.sixpack;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ExperimentTest {
     @Mock Sixpack mockSixpack;
+
+    @Mock OnParticipationSuccess mockSuccess;
+
+    @Mock OnParticipationFailure mockFailure;
 
     @Before
     public void setUp() {
@@ -201,5 +208,20 @@ public class ExperimentTest {
                 .build();
 
         assertEquals(name, experiment.toString());
+    }
+
+    @Test
+    public void testParticipateCallsSixpackParticipate() {
+        String name = "test-experiment";
+        Alternative test = new Alternative("test");
+
+        Experiment experiment = new ExperimentBuilder(mockSixpack)
+                .withName(name)
+                .withAlternative(test)
+                .build();
+
+        experiment.participate(mockSuccess, mockFailure);
+
+        verify(mockSixpack).participateIn(experiment, mockSuccess, mockFailure);
     }
 }
