@@ -38,10 +38,10 @@ public class SixpackActivity extends ActionBarActivity {
 
         buttonColor.participate(
                 new OnParticipationSuccess() {
-                    @Override public void onParticipation(final ParticipatingExperiment experiment, Alternative selectedAlternative) {
-                        if (SixpackModule.BUTTON_COLOR_RED.equals(selectedAlternative.getName())) {
+                    @Override public void onParticipation(final ParticipatingExperiment experiment) {
+                        if (SixpackModule.BUTTON_COLOR_RED.equals(experiment.getSelectedAlternative().getName())) {
                             colorfulButton.setBackgroundColor(Color.RED);
-                        } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(selectedAlternative.getName())) {
+                        } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(experiment.getSelectedAlternative().getName())) {
                             colorfulButton.setBackgroundColor(Color.BLUE);
                         }
 

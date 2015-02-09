@@ -29,9 +29,9 @@ public class SixpackTestJava {
 
         // participate in the new experiment
         pillColor.participate(
-                (participatingExperiment, selectedAlternative) -> {
+                (participatingExperiment) -> {
                     // We successfully participated, now we can use the alternative specified by Sixpack
-                    System.out.println("Will you take a " + selectedAlternative.getName() + " pill? [y/n]");
+                    System.out.println("Will you take a " + participatingExperiment.getSelectedAlternative().getName() + " pill? [y/n]");
                     String answer = new Scanner(System.in).nextLine();
 
                     if ("y".equalsIgnoreCase(answer)) {
