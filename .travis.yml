@@ -1,34 +1,28 @@
 language: android
-
 android:
   components:
-    - build-tools-21.1.2
-    - extra-android-m2repository
-    - extra-google-m2repository
-    - android-21
-
+  - build-tools-21.1.2
+  - extra-android-m2repository
+  - extra-google-m2repository
+  - android-21
 jdk:
   - oraclejdk8
-
 before_install:
-  # for gradle output style
   - export TERM=dumb
-
-  # ensure gradlew is executeable
   - chmod +x gradlew
-  
-  # environment info
   - ./gradlew -v
   - uname -a
-
 sudo: false
-
 cache:
   directories:
     - $HOME/.gradle/caches/
-
 script:
   - ./gradlew clean :library:assemble :library:test :library:jacocoTestReport :library:coveralls
-
 after_script:
   - coveralls
+after_success:
+  - buildscripts/deploy_snapshot.sh    
+env:
+  global:
+  - secure: bBWD+V35Tfso9UM51CvGCeUsg8h5pm8tGVLe+nFBMLcZCTOSPVtoGZMMns5xxNNVL2zMkyeGQ1q8lMzLmg63qxyuXxUHTokm5CBa1Z+4N+JMuV42q8fPhC7pfMKVH1/CBTEEmtFI7xyfAD7w/fcLkckfjdxjkLGPLmRsV0PXjkw=
+  - secure: iJMMcetxmGBcZpRGs2x4QULJjjtFwqJrPtYuZc+2MwypIlEfbvFiAi2zJf7+RT9+V60iqDgCofDjrvQQH9T4FmKuAeedtp8tpNVWVG9Dhw9eVM7uaSOwhQ+vOgxL1g9vm5CLMzZQBKvZGflMBNX9TFc6+FmUHKgbTSPiCiemdos=

@@ -2,6 +2,20 @@
 
 A Java client for SeatGeek's Sixpack a/b testing framework: https://github.com/seatgeek/sixpack
 
+# Installing
+
+Sixpack-java is currently only being deployed to maven snapshots, to use it, add the following to your build.grade:
+
+```groovy
+repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
+dependencies {
+    compile 'com.seatgeek:sixpack:0.0.1-SNAPSHOT'
+}
+```
+
 # License
 
 Sixpack-Java is released under the [BSD 2-Clause License](http://opensource.org/licenses/BSD-2-Clause)

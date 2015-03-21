@@ -4,12 +4,16 @@ buildscript {
     }
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.1.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
     }
 }
 
-apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.5
 version = '1.0'
@@ -27,9 +31,88 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
 }
 
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            if (plugins.hasPlugin('war')) {
+                from components.web
+            } else {
+                from components.java
+            }
+
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+// before applying gradle-mvn-push, get the nexus username and pw from
+project.ext.NEXUS_USERNAME = "$System.env.NEXUS_USERNAME"
+project.ext.NEXUS_PASSWORD = "$System.env.NEXUS_PASSWORD"
+
+apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+
 jacocoTestReport {
     reports {
         xml.enabled = true // coveralls plugin depends on xml format report
         html.enabled = true
+    }
+}
+
+bintray {
+    user = BINTRAY_USER //this usually comes from gradle.properties file in ~/.gradle
+    key = BINTRAY_API_KEY //this usually comes from gradle.properties file in ~/.gradle
+
+    publications = ['mavenJava'] //When uploading Maven-based publication files
+    dryRun = true //Whether to run this as dry-run, without deploying
+    publish = true //If version should be auto published after an upload
+    pkg {
+        repo = 'sixpack-java'
+        userOrg = 'seatgeek'
+        name = 'sixpack-java'
+        desc = 'A java client for the sixpack A/B testing framework'
+        websiteUrl = 'https://github.com/seatgeek/sixpack-java'
+        issueTrackerUrl = 'https://github.com/seatgeek/sixpack-java/issues'
+        vcsUrl = 'https://github.com/seatgeek/sixpack-java.git'
+        licenses = ['BSD-2-Clause']
+        //labels = ['seatgeek', 'sixpack', 'java']
+        publicDownloadNumbers = true
+        //Optional version descriptor
+        version {
+            name = project.version //Bintray logical version name
+            desc = 'optional, version-specific description'
+            released  = 'optional, date of the version release' //2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
+            vcsTag = '1.3.0'
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
+            }
+            mavenCentralSync {
+                sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                user = 'userToken' //OSS user token
+                password = 'paasword' //OSS user password
+                close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+            }
+        }
     }
 }
