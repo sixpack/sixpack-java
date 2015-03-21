@@ -17,12 +17,11 @@ cache:
   directories:
   - $HOME/.gradle/caches/
 script:
-- ./gradlew clean :sixpack-java:assemble :sixpack-java:test :sixpack-java:jacocoTestReport
-  :sixpack-java:coveralls
+- ./gradlew clean :sixpack-java:assemble :sixpack-java:test
 after_success:
-- coveralls
+- ./gradlew :sixpack-java:jacocoTestReport :sixpack-java:coveralls
 - buildscripts/deploy_snapshot.sh
 env:
   global:
-  - secure: WSZRCzEkUw8MlG2Fgjj+yonnjEtcWI67U2Q+U01GKd/Yz01X1xnN55HuSvDp4rUn8mn2aKg/kUsaOzjVEnHFJF4UJ0SOqzNAm7oC6EemG/gdKcrlvJ6TL5WBIoE/lCanQVL7FJqt3wPH6JN5/A/0JLUujWeJGORL62t9PyabXP8=
-  - secure: PoUWqyvwj+tIpu1iG7M24Z9qh32Ise2AeEiy+rN0FUNTimha/0ddXFSVMXnwmJ6m/+cZjOJKCPVWvZXuChlNLDNrU2pdAGJzUoMJ+9R9+4D7y3Xk1GJ6HbhSrSrioM9GiZ8C6DnScVWrSmZ/iQDjpja/IXPHtqblBh7UsUy0Nd0=
+     - nexusPassword="fakepw"
+     - nexusUsername="fakeun"

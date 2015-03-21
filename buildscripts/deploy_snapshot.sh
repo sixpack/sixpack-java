@@ -22,6 +22,8 @@ elif [ "$TRAVIS_BRANCH" != "$BRANCH" ]; then
     echo "Skipping snapshot deployment: wrong branch. Expected '$BRANCH' but was '$TRAVIS_BRANCH'."
 else
     echo "Deploying snapshot..."
+    echo $nexusUsername
+    echo $nexusPassword
     ./gradlew -PnexusUsername=$nexusUsername -PnexusPassword=$nexusPassword :sixpack-java:uploadArchives
     echo "Snapshot deployed!"
 fi
