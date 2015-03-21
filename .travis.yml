@@ -23,5 +23,5 @@ after_success:
 - buildscripts/deploy_snapshot.sh
 env:
   global:
-  - secure: P1ehMlSzqv9hjJyIH3VxQ8HxjgCd4ROnIeRynjr0HifLt4viEuIaPSoOFM7e/QwKHVU1/IoX1NjYD7BLlLBSb2yhdKburXkTM8RK3iG1BcL36k0h6GkOTSSVU9I8IYKaOn/zdz50bcvK1W/aJgBhqoNwQ4ku9fViGCWyBQTUYVg=
-  - secure: GjZfwGIEpmavGgV1kd3n2oFySeQnXWHovcy397TX8OdL2vrwv9fh+EhDsqO70E7Dg6r5EYORMtjXoThd47w65uqu8+ukYuVTu/kc6MGe2H/5aHcOcUJ3zybawCLEPaYskO8Daz/JwnQkytO5eyONnYhztFu0Yx1uKdpXfjnIuu0=
+  - secure: Fa3NJP+/d5oRsJw3geK5CHN/G/hPCS8hJhA29y7iXmPT8M2n9Dz0vvaCJdAVcxMEFU/EWJAMpHHXhIoMuYQ+XkkY3whtkYuYfHVmJXTFv1whf1VyCvh5V62HL7clLFgbSUTEFkvPjJkerHVZ1/dYy5z3dyvxssarmlAc6RzdcgY=
+  - secure: IXb9RfZu1eiVWIY/0qbiLl8HC5cpl64nxCGCOhMWvasPF17f++jDr9WTXInAUIrU+AVzYELdQz8A9eg3J7JgXd/eWNirfmyaJGaF7ag1qitKv9lEiCzRlP3PCTWierZUzHZKEdVj6J76yvutuitkEADtYpfINniJUGa9yQ5BYl8=
