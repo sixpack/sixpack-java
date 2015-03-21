@@ -6,22 +6,23 @@ android:
   - extra-google-m2repository
   - android-21
 jdk:
-  - oraclejdk8
+- oraclejdk8
 before_install:
-  - export TERM=dumb
-  - chmod +x gradlew
-  - ./gradlew -v
-  - uname -a
+- export TERM=dumb
+- chmod +x gradlew
+- ./gradlew -v
+- uname -a
 sudo: false
 cache:
   directories:
-    - $HOME/.gradle/caches/
+  - $HOME/.gradle/caches/
 script:
-  - ./gradlew clean :library:assemble :library:test :library:jacocoTestReport :library:coveralls
+- ./gradlew clean :sixpack-java:assemble :sixpack-java:test :sixpack-java:jacocoTestReport
+  :sixpack-java:coveralls
 after_success:
-  - coveralls
-  - buildscripts/deploy_snapshot.sh
+- coveralls
+- buildscripts/deploy_snapshot.sh
 env:
   global:
-  - secure: bBWD+V35Tfso9UM51CvGCeUsg8h5pm8tGVLe+nFBMLcZCTOSPVtoGZMMns5xxNNVL2zMkyeGQ1q8lMzLmg63qxyuXxUHTokm5CBa1Z+4N+JMuV42q8fPhC7pfMKVH1/CBTEEmtFI7xyfAD7w/fcLkckfjdxjkLGPLmRsV0PXjkw=
-  - secure: iJMMcetxmGBcZpRGs2x4QULJjjtFwqJrPtYuZc+2MwypIlEfbvFiAi2zJf7+RT9+V60iqDgCofDjrvQQH9T4FmKuAeedtp8tpNVWVG9Dhw9eVM7uaSOwhQ+vOgxL1g9vm5CLMzZQBKvZGflMBNX9TFc6+FmUHKgbTSPiCiemdos=
+  - secure: WSZRCzEkUw8MlG2Fgjj+yonnjEtcWI67U2Q+U01GKd/Yz01X1xnN55HuSvDp4rUn8mn2aKg/kUsaOzjVEnHFJF4UJ0SOqzNAm7oC6EemG/gdKcrlvJ6TL5WBIoE/lCanQVL7FJqt3wPH6JN5/A/0JLUujWeJGORL62t9PyabXP8=
+  - secure: PoUWqyvwj+tIpu1iG7M24Z9qh32Ise2AeEiy+rN0FUNTimha/0ddXFSVMXnwmJ6m/+cZjOJKCPVWvZXuChlNLDNrU2pdAGJzUoMJ+9R9+4D7y3Xk1GJ6HbhSrSrioM9GiZ8C6DnScVWrSmZ/iQDjpja/IXPHtqblBh7UsUy0Nd0=

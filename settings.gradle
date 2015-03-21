@@ -1,6 +1,5 @@
 rootProject.name = 'sixpack-java'
 
-include ':library',
+include ':sixpack-java',
         ':example-android',
         ':example-java'
-
