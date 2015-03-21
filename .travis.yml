@@ -18,10 +18,9 @@ cache:
     - $HOME/.gradle/caches/
 script:
   - ./gradlew clean :library:assemble :library:test :library:jacocoTestReport :library:coveralls
-after_script:
-  - coveralls
 after_success:
-  - buildscripts/deploy_snapshot.sh    
+  - coveralls
+  - buildscripts/deploy_snapshot.sh
 env:
   global:
   - secure: bBWD+V35Tfso9UM51CvGCeUsg8h5pm8tGVLe+nFBMLcZCTOSPVtoGZMMns5xxNNVL2zMkyeGQ1q8lMzLmg63qxyuXxUHTokm5CBa1Z+4N+JMuV42q8fPhC7pfMKVH1/CBTEEmtFI7xyfAD7w/fcLkckfjdxjkLGPLmRsV0PXjkw=
