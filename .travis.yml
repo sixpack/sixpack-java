@@ -23,5 +23,5 @@ after_success:
 - buildscripts/deploy_snapshot.sh
 env:
   global:
-     - nexusPassword="fakepw"
-     - nexusUsername="fakeun"
+  - secure: P1ehMlSzqv9hjJyIH3VxQ8HxjgCd4ROnIeRynjr0HifLt4viEuIaPSoOFM7e/QwKHVU1/IoX1NjYD7BLlLBSb2yhdKburXkTM8RK3iG1BcL36k0h6GkOTSSVU9I8IYKaOn/zdz50bcvK1W/aJgBhqoNwQ4ku9fViGCWyBQTUYVg=
+  - secure: GjZfwGIEpmavGgV1kd3n2oFySeQnXWHovcy397TX8OdL2vrwv9fh+EhDsqO70E7Dg6r5EYORMtjXoThd47w65uqu8+ukYuVTu/kc6MGe2H/5aHcOcUJ3zybawCLEPaYskO8Daz/JwnQkytO5eyONnYhztFu0Yx1uKdpXfjnIuu0=
