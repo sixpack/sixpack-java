@@ -43,12 +43,16 @@ public class SixpackBuilder {
     }
 
     public Sixpack build() {
+        boolean usedDefaultUrl = false;
         if (sixpackUrl == null || sixpackUrl.length() == 0) {
             sixpackUrl = Sixpack.DEFAULT_URL;
+            usedDefaultUrl = true;
         }
-        
+
+        boolean generatedDefaultClientId = false;
         if (clientId == null || clientId.length() == 0) {
             clientId = Sixpack.generateRandomClientId();
+            generatedDefaultClientId = true;
         }
 
         Sixpack sixpack = new Sixpack(sixpackUrl, clientId, client);
@@ -60,6 +64,16 @@ public class SixpackBuilder {
         if (logger != null) {
             sixpack.setLogger(logger);
         }
+
+        if (usedDefaultUrl) {
+            sixpack.logUseOfDefaultUrl();
+        }
+
+        if (generatedDefaultClientId) {
+            sixpack.logGeneratedClientId(clientId);
+        }
+
+        sixpack.logNewInstanceCreation(sixpackUrl, clientId);
 
         return sixpack;
     }

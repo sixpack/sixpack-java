@@ -1,6 +1,8 @@
 package com.seatgeek.sixpack;
 
 import com.seatgeek.sixpack.log.LogLevel;
+import com.seatgeek.sixpack.log.SystemOutLogger;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -69,6 +71,7 @@ public class SixpackBuilderTest {
         LogLevel logLevel = LogLevel.DEBUG;
         Sixpack sixpack = new SixpackBuilder()
                 .setLogLevel(logLevel)
+                .setLogger(new SystemOutLogger())
                 .build();
 
         assertEquals(logLevel, sixpack.getLogLevel());

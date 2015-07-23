@@ -8,14 +8,13 @@ public class LogLevelTest {
 
     @Test
     public void testValuesArray() {
-        assertArrayEquals(new LogLevel[] { LogLevel.VERBOSE, LogLevel.DEBUG, LogLevel.BASIC, LogLevel.NONE}, LogLevel.values());
+        assertArrayEquals(new LogLevel[] { LogLevel.VERBOSE, LogLevel.DEBUG, LogLevel.NONE}, LogLevel.values());
     }
 
     @Test
     public void testValueOf() {
         assertEquals(LogLevel.valueOf("VERBOSE"), LogLevel.VERBOSE);
         assertEquals(LogLevel.valueOf("DEBUG"), LogLevel.DEBUG);
-        assertEquals(LogLevel.valueOf("BASIC"), LogLevel.BASIC);
         assertEquals(LogLevel.valueOf("NONE"), LogLevel.NONE);
     }
 

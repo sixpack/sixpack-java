@@ -1,7 +1,5 @@
 package com.seatgeek.sixpack;
 
-import android.os.StatFs;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.seatgeek.sixpack.log.LogLevel;
@@ -10,12 +8,15 @@ import com.seatgeek.sixpack.log.PlatformLogger;
 import com.seatgeek.sixpack.response.ConvertResponse;
 import com.seatgeek.sixpack.response.ParticipateResponse;
 
-import retrofit.*;
+import retrofit.Callback;
+import retrofit.Endpoint;
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.Client;
 import retrofit.client.OkClient;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
-import retrofit.http.Query;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -57,24 +58,16 @@ public class Sixpack {
 
     void logNewExperiment(final String name, final Set<Alternative> alternatives, final Alternative forcedChoice, final Double trafficFraction) {
         if (logLevel.isAtLeastVerbose()) {
-            verboseLogNewExperiment(name, alternatives, forcedChoice, trafficFraction);
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Created new Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            name, alternatives, forcedChoice, trafficFraction
+                    )
+            );
         } else if (logLevel.isAtLeastDebug()) {
-            debugLogNewExperiment(name);
+            logger.log(SIXPACK_LOG_TAG, String.format("Created new Experiment: name=%s", name));
         }
-    }
-
-    private void debugLogNewExperiment(final String name) {
-        logger.log(SIXPACK_LOG_TAG, String.format("Created new Experiment: name=%s", name));
-    }
-
-    private void verboseLogNewExperiment(final String name, final Set<Alternative> alternatives, final Alternative forcedChoice, final Double trafficFraction) {
-        logger.log(
-                SIXPACK_LOG_TAG,
-                String.format(
-                        "Created new Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                        name, alternatives, forcedChoice, trafficFraction
-                )
-        );
     }
 
     public String getClientId() {
@@ -109,6 +102,34 @@ public class Sixpack {
         return UUID.randomUUID().toString();
     }
 
+    void logUseOfDefaultUrl() {
+        if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, "Warning! Using default Sixpack url of " + DEFAULT_URL +
+                    ". If your server instance is not set up locally on your machine your requests will fail!");
+        }
+    }
+
+    void logGeneratedClientId(final String clientId) {
+        if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Warning! Using auto-generated client id of %s" +
+                    ". If your client id changes on each instance creation, you won't get the same test results", clientId));
+        }
+    }
+
+    void logNewInstanceCreation(final String sixpackUrl, final String clientId) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Created new Sixpack client with sixpackUrl=%s, clientId=%s",
+                            sixpackUrl, clientId
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, "Created new Sixpack client");
+        }
+    }
+
     /**
      * Internal method used by {@code Experiment} to start a participation in a test
      */
@@ -125,24 +146,15 @@ public class Sixpack {
 
     private void logParticipate(final Experiment experiment) {
         if (logLevel.isAtLeastVerbose()) {
-            verboseLogParticipate(experiment);
-        } else if (logLevel.isAtLeastDebug()) {
-            debugLogParticipate(experiment);
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Participating in Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
+                    )
+            );        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Participating in Experiment: name=%s", experiment.name));
         }
-    }
-
-    private void debugLogParticipate(final Experiment experiment) {
-        logger.log(SIXPACK_LOG_TAG, String.format("Participating in Experiment: name=%s", experiment.name));
-    }
-
-    private void verboseLogParticipate(final Experiment experiment) {
-        logger.log(
-                SIXPACK_LOG_TAG,
-                String.format(
-                        "Participating in Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                        experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
-                )
-        );
     }
 
     /**
@@ -158,24 +170,15 @@ public class Sixpack {
 
     private void logConvert(final ParticipatingExperiment experiment) {
         if (logLevel.isAtLeastVerbose()) {
-            verboseLogConvert(experiment);
-        } else if (logLevel.isAtLeastDebug()) {
-            debugLogConvert(experiment);
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Converting Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            experiment.baseExperiment.name, experiment.baseExperiment.alternatives, experiment.baseExperiment.forcedChoice, experiment.baseExperiment.trafficFraction
+                    )
+            );        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Converting Experiment: name=%s", experiment.baseExperiment.name));
         }
-    }
-
-    private void debugLogConvert(final ParticipatingExperiment experiment) {
-        logger.log(SIXPACK_LOG_TAG, String.format("Converting Experiment: name=%s", experiment.baseExperiment.name));
-    }
-
-    private void verboseLogConvert(final ParticipatingExperiment experiment) {
-        logger.log(
-                SIXPACK_LOG_TAG,
-                String.format(
-                        "Converting Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                        experiment.baseExperiment.name, experiment.baseExperiment.alternatives, experiment.baseExperiment.forcedChoice, experiment.baseExperiment.trafficFraction
-                )
-        );
     }
 
     /**

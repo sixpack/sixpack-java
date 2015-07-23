@@ -60,9 +60,9 @@ public class SixpackTest {
     public void testGetLogLevel() {
         Sixpack sixpack = new Sixpack(mockApi);
 
-        sixpack.setLogLevel(LogLevel.BASIC);
+        sixpack.setLogLevel(LogLevel.VERBOSE);
 
-        assertEquals(sixpack.getLogLevel(), LogLevel.BASIC);
+        assertEquals(sixpack.getLogLevel(), LogLevel.VERBOSE);
     }
 
     @Test
@@ -299,7 +299,6 @@ public class SixpackTest {
     @Test
     public void testGetRetrofitLogLevel() {
         assertEquals(RestAdapter.LogLevel.FULL, Sixpack.getRetrofitLogLevel(LogLevel.VERBOSE));
-        assertEquals(RestAdapter.LogLevel.BASIC, Sixpack.getRetrofitLogLevel(LogLevel.BASIC));
         assertEquals(RestAdapter.LogLevel.HEADERS_AND_ARGS, Sixpack.getRetrofitLogLevel(LogLevel.DEBUG));
         assertEquals(RestAdapter.LogLevel.NONE, Sixpack.getRetrofitLogLevel(LogLevel.NONE));
         assertEquals(RestAdapter.LogLevel.NONE, Sixpack.getRetrofitLogLevel(null));
