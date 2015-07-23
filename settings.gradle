@@ -1,4 +1,4 @@
-rootProject.name = 'sixpack-java'
+rootProject.name = 'sixpack-java-project'
 
 include ':sixpack-java',
         ':example-android',
