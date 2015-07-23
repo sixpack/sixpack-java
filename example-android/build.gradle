@@ -7,13 +7,13 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion "23.0.0 rc3"
-    compileSdkVersion 22
+    buildToolsVersion "21.1.2"
+    compileSdkVersion 21
 
     defaultConfig {
         applicationId "com.seatgeek.sixpack.android"
         minSdkVersion 16
-        targetSdkVersion 22
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
