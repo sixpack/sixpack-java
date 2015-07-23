@@ -10,6 +10,7 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'idea'
 // apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.7
