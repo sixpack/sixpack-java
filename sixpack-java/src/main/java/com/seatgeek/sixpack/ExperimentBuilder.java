@@ -62,6 +62,8 @@ public class ExperimentBuilder {
             throw new NoAlternativesException();
         }
 
+        sixpack.logNewExperiment(name, alternatives, forcedChoice, trafficFraction);
+
         return new Experiment(sixpack, name, alternatives, forcedChoice, trafficFraction);
     }
 }
