@@ -17,23 +17,23 @@ public class ParticipateResponseTest extends TestCase {
     @Test
     public void testGetExperimentName() throws Exception {
         ExperimentName experiment = new ExperimentName();
-        experiment.setName("test_experiment");
+        experiment.name = "test_experiment";
 
         ParticipateResponse response = new ParticipateResponse();
-        response.setExperiment(experiment);
+        response.experiment = experiment;
 
-        assertEquals("test_experiment", response.getExperiment().getName());
+        assertEquals("test_experiment", response.experiment.name);
     }
 
     @Test
     public void testGetAlternativeName() throws Exception {
         AlternativeName alternativeName = new AlternativeName();
-        alternativeName.setName("green");
+        alternativeName.name = "green";
 
         ParticipateResponse response = new ParticipateResponse();
-        response.setAlternative(alternativeName);
+        response.alternative = alternativeName;
 
-        assertEquals("green", response.getAlternative().getName());
+        assertEquals("green", response.alternative.name);
     }
 
     @Test
@@ -41,18 +41,18 @@ public class ParticipateResponseTest extends TestCase {
         String clientId = "client_id";
 
         ParticipateResponse response = new ParticipateResponse();
-        response.setClientId(clientId);
+        response.clientId = clientId;
 
-        assertEquals(clientId, response.getClientId());
+        assertEquals(clientId, response.clientId);
     }
 
     @Test
     public void testGetSelectedAlternative() throws Exception {
         AlternativeName alternativeName = new AlternativeName();
-        alternativeName.setName("green");
+        alternativeName.name = "green";
 
         ParticipateResponse response = new ParticipateResponse();
-        response.setAlternative(alternativeName);
+        response.alternative = alternativeName;
 
         assertEquals(new Alternative("green"), response.getSelectedAlternative());
     }

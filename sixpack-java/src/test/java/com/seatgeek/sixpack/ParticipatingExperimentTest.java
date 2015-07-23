@@ -30,7 +30,7 @@ public class ParticipatingExperimentTest {
     public void testGetSixpack() throws Exception {
         ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, mockAlternative);
 
-        Sixpack sixpack = participatingExperiment.getSixpack();
+        Sixpack sixpack = participatingExperiment.sixpack;
 
         assertEquals(sixpack, mockSixpack);
     }
@@ -39,7 +39,7 @@ public class ParticipatingExperimentTest {
     public void testGetBaseExperiment() throws Exception {
         ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, mockAlternative);
 
-        Experiment baseExperiment = participatingExperiment.getBaseExperiment();
+        Experiment baseExperiment = participatingExperiment.baseExperiment;
 
         assertEquals(baseExperiment, mockExperiment);
     }
@@ -50,7 +50,7 @@ public class ParticipatingExperimentTest {
 
         ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, testAlternative);
 
-        assertEquals(participatingExperiment.getSelectedAlternative(), testAlternative);
+        assertEquals(participatingExperiment.selectedAlternative, testAlternative);
     }
 
     @Test

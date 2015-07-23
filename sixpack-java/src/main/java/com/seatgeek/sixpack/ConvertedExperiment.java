@@ -2,20 +2,13 @@ package com.seatgeek.sixpack;
 
 public class ConvertedExperiment {
 
-    private final Sixpack sixpack;
-    private final Experiment experiment;
+    public final Sixpack sixpack;
 
-    ConvertedExperiment(Sixpack sixpack, Experiment experiment) {
+    public final Experiment baseExperiment;
+
+    ConvertedExperiment(Sixpack sixpack, Experiment baseExperiment) {
         this.sixpack = sixpack;
-        this.experiment = experiment;
-    }
-
-    public Sixpack getSixpack() {
-        return sixpack;
-    }
-
-    public Experiment getBaseExperiment() {
-        return experiment;
+        this.baseExperiment = baseExperiment;
     }
 
     @Override
@@ -25,7 +18,7 @@ public class ConvertedExperiment {
 
         ConvertedExperiment that = (ConvertedExperiment) o;
 
-        if (!experiment.equals(that.experiment)) return false;
+        if (!baseExperiment.equals(that.baseExperiment)) return false;
         if (!sixpack.equals(that.sixpack)) return false;
 
         return true;
@@ -34,7 +27,7 @@ public class ConvertedExperiment {
     @Override
     public int hashCode() {
         int result = sixpack.hashCode();
-        result = 31 * result + experiment.hashCode();
+        result = 31 * result + baseExperiment.hashCode();
         return result;
     }
 }

@@ -1,17 +1,15 @@
 package com.seatgeek.sixpack;
 
 public class Alternative {
-    private final String name;
+
+    public final String name;
 
     public Alternative(String name) {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Alternative name cannot be empty or null!");
         }
-        this.name = name;
-    }
 
-    public String getName() {
-        return name;
+        this.name = name;
     }
 
     @Override

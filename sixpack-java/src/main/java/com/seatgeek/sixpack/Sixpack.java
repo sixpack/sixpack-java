@@ -56,15 +56,15 @@ public class Sixpack {
 
     void participateIn(final Experiment experiment, final OnParticipationSuccess success, final OnParticipationFailure failure) {
         api.participate(experiment,
-                new ArrayList<Alternative>(experiment.getAlternatives()),
-                experiment.getForcedChoice(),
-                experiment.getTrafficFraction(),
+                new ArrayList<>(experiment.alternatives),
+                experiment.forcedChoice,
+                experiment.trafficFraction,
                 getParticipateCallback(experiment, success, failure)
         );
     }
 
     void convert(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
-        api.convert(experiment.getBaseExperiment(),
+        api.convert(experiment.baseExperiment,
                 getConvertCallback(experiment, success, failure)
         );
     }
@@ -91,7 +91,7 @@ public class Sixpack {
 
             public void success(final ConvertResponse convertResponse, final  Response response) {
                 if (success != null) {
-                    success.onConverted(new ConvertedExperiment(Sixpack.this, experiment.getBaseExperiment()));
+                    success.onConverted(new ConvertedExperiment(Sixpack.this, experiment.baseExperiment));
                 }
             }
 

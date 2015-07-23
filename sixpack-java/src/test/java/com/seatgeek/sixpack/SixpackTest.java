@@ -12,6 +12,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import retrofit.*;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -23,8 +24,6 @@ public class SixpackTest {
 
     String clientId;
 
-    @Mock Experiment mockExperiment;
-
     @Before
     public void setUp() {
         initMocks(this);
@@ -34,7 +33,7 @@ public class SixpackTest {
 
     @Test
     public void testUrlConstructor() {
-        Sixpack sixpack = new Sixpack(Sixpack.DEFAULT_URL, clientId);
+        Sixpack sixpack = new Sixpack(Sixpack.DEFAULT_URL, clientId, null);
 
         assertNotNull(sixpack);
         assertEquals(clientId, sixpack.getClientId());
@@ -96,18 +95,19 @@ public class SixpackTest {
 
                 ParticipateResponse response = new ParticipateResponse();
                 AlternativeName name = new AlternativeName();
-                name.setName("green");
-                response.setAlternative(name);
+                name.name = "green";
+                response.alternative = name;
                 cb.success(response, null);
                 return null;
             }
         }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        sixpack.participateIn(mockExperiment, mockSuccess, null);
+        sixpack.participateIn(experiment, mockSuccess, null);
 
-        verify(mockSuccess).onParticipation(new ParticipatingExperiment(sixpack, mockExperiment, new Alternative("green")));
+        verify(mockSuccess).onParticipation(new ParticipatingExperiment(sixpack, experiment, new Alternative("green")));
     }
 
     @Test
@@ -119,16 +119,17 @@ public class SixpackTest {
 
                 ParticipateResponse response = new ParticipateResponse();
                 AlternativeName name = new AlternativeName();
-                name.setName("green");
-                response.setAlternative(name);
+                name.name = "green";
+                response.alternative = name;
                 cb.success(response, null);
                 return null;
             }
         }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        sixpack.participateIn(mockExperiment, null, null);
+        sixpack.participateIn(experiment, null, null);
     }
 
     @Test
@@ -147,10 +148,11 @@ public class SixpackTest {
         }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        sixpack.participateIn(mockExperiment, null, mockFailure);
+        sixpack.participateIn(experiment, null, mockFailure);
 
-        verify(mockFailure).onParticipationFailed(mockExperiment, error);
+        verify(mockFailure).onParticipationFailed(experiment, error);
     }
 
     @Test
@@ -168,8 +170,9 @@ public class SixpackTest {
         }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        sixpack.participateIn(mockExperiment, null, null);
+        sixpack.participateIn(experiment, null, null);
     }
 
     @Test
@@ -189,11 +192,13 @@ public class SixpackTest {
         }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
-        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, mockExperiment, selected);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
         sixpack.convert(participating, mockSuccess, null);
 
-        verify(mockSuccess).onConverted(new ConvertedExperiment(sixpack, mockExperiment));
+        verify(mockSuccess).onConverted(new ConvertedExperiment(sixpack, experiment));
     }
 
     @Test
@@ -212,7 +217,9 @@ public class SixpackTest {
         }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
-        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, mockExperiment, selected);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
         sixpack.convert(participating, null, null);
     }
@@ -235,7 +242,9 @@ public class SixpackTest {
         }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
-        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, mockExperiment, selected);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
         sixpack.convert(participating, null, mockFailure);
 
@@ -259,7 +268,9 @@ public class SixpackTest {
         }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
 
         Sixpack sixpack = new Sixpack(mockApi);
-        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, mockExperiment, selected);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
         sixpack.convert(participating, null, null);
     }
@@ -267,20 +278,22 @@ public class SixpackTest {
     @Test
     public void testGetParticipateCallback() {
         Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        assertNotNull(sixpack.getParticipateCallback(mockExperiment, null, null));
+        assertNotNull(sixpack.getParticipateCallback(experiment, null, null));
     }
 
     @Test
     public void testGetConvertCallback() {
         Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        assertNotNull(sixpack.getConvertCallback(new ParticipatingExperiment(sixpack, mockExperiment, new Alternative("test")), null, null));
+        assertNotNull(sixpack.getConvertCallback(new ParticipatingExperiment(sixpack, experiment, new Alternative("test")), null, null));
     }
 
     @Test
     public void testGetDefaultApi() {
-        assertNotNull(Sixpack.getDefaultApi(Sixpack.DEFAULT_URL, "client_id", LogLevel.NONE));
+        assertNotNull(Sixpack.getDefaultApi(Sixpack.DEFAULT_URL, "client_id", LogLevel.NONE, null));
     }
 
     @Test

@@ -26,14 +26,14 @@ public class ExperimentBuilder {
     }
 
     public ExperimentBuilder withAlternatives(Alternative... alternatives) {
-        this.alternatives = new HashSet<Alternative>(alternatives.length);
+        this.alternatives = new HashSet<>(alternatives.length);
         Collections.addAll(this.alternatives, alternatives);
         return this;
     }
 
     public ExperimentBuilder withAlternative(Alternative alternative) {
         if (this.alternatives == null) {
-            this.alternatives = new HashSet<Alternative>();
+            this.alternatives = new HashSet<>();
         }
         this.alternatives.add(alternative);
         return this;

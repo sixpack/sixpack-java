@@ -23,7 +23,7 @@ public class AlternativeTest {
 
         Alternative alternative = new Alternative(name);
 
-        assertTrue(name.equals(alternative.getName()));
+        assertTrue(name.equals(alternative.name));
     }
 
     @Test

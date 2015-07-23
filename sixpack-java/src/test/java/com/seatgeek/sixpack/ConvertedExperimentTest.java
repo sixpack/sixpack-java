@@ -23,7 +23,7 @@ public class ConvertedExperimentTest {
     public void testGetSixpack() throws Exception {
         ConvertedExperiment convertedExperiment = new ConvertedExperiment(mockSixpack, mockExperiment);
 
-        Sixpack sixpack = convertedExperiment.getSixpack();
+        Sixpack sixpack = convertedExperiment.sixpack;
 
         assertEquals(sixpack, mockSixpack);
     }
@@ -32,7 +32,7 @@ public class ConvertedExperimentTest {
     public void testGetBaseExperiment() throws Exception {
         ConvertedExperiment convertedExperiment = new ConvertedExperiment(mockSixpack, mockExperiment);
 
-        Experiment baseExperiment = convertedExperiment.getBaseExperiment();
+        Experiment baseExperiment = convertedExperiment.baseExperiment;
 
         assertEquals(baseExperiment, mockExperiment);
     }

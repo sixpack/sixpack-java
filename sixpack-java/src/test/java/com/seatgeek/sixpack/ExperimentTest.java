@@ -35,7 +35,7 @@ public class ExperimentTest {
                 .withName(name)
                 .build();
 
-        assertEquals(mockSixpack, experiment.getSixpack());
+        assertEquals(mockSixpack, experiment.sixpack);
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ExperimentTest {
                 .withAlternative(test)
                 .build();
 
-        assertEquals(name, experiment.getName());
+        assertEquals(name, experiment.name);
     }
 
     @Test(expected = NoExperimentNameException.class)
@@ -102,9 +102,9 @@ public class ExperimentTest {
                 .withAlternatives(setOfAlternatives)
                 .build();
 
-        assertEquals(setOfAlternatives, experimentA.getAlternatives());
-        assertEquals(setOfAlternatives, experimentB.getAlternatives());
-        assertEquals(setOfAlternatives, experimentC.getAlternatives());
+        assertEquals(setOfAlternatives, experimentA.alternatives);
+        assertEquals(setOfAlternatives, experimentB.alternatives);
+        assertEquals(setOfAlternatives, experimentC.alternatives);
     }
 
     @Test(expected = NoAlternativesException.class)
@@ -148,7 +148,7 @@ public class ExperimentTest {
                 .build();
 
         assertTrue(experiment.hasForcedChoice());
-        assertEquals(test, experiment.getForcedChoice());
+        assertEquals(test, experiment.forcedChoice);
     }
 
 
@@ -163,7 +163,7 @@ public class ExperimentTest {
                 .build();
 
         assertFalse(experiment.hasForcedChoice());
-        assertNull(experiment.getForcedChoice());
+        assertNull(experiment.forcedChoice);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class ExperimentTest {
                 .withTrafficFraction(fraction)
                 .build();
 
-        assertEquals(fraction, experiment.getTrafficFraction());
+        assertEquals(fraction, experiment.trafficFraction);
     }
 
     @Test(expected = BadTrafficFractionException.class)

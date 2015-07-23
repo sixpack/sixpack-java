@@ -2,5 +2,6 @@ package com.seatgeek.sixpack;
 
 @FunctionalInterface
 public interface OnParticipationSuccess {
-    public void onParticipation(ParticipatingExperiment experiment);
+
+    void onParticipation(ParticipatingExperiment experiment);
 }

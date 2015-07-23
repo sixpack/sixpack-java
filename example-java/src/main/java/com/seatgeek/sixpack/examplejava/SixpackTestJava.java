@@ -31,7 +31,7 @@ public class SixpackTestJava {
         pillColor.participate(
                 (participatingExperiment) -> {
                     // We successfully participated, now we can use the alternative specified by Sixpack
-                    System.out.println("Will you take a " + participatingExperiment.getSelectedAlternative().getName() + " pill? [y/n]");
+                    System.out.println("Will you take a " + participatingExperiment.selectedAlternative.name + " pill? [y/n]");
                     String answer = new Scanner(System.in).nextLine();
 
                     if ("y".equalsIgnoreCase(answer)) {
@@ -45,7 +45,7 @@ public class SixpackTestJava {
                                 (failedExperiment, error) -> {
                                     // Failing to covert is likely due to network issues... at this point you can try again
                                     // or backoff and retry, whatever you think makes the most sense for your application
-                                    System.out.println("Failed to convert in " + failedExperiment.getBaseExperiment() + ". Error: " + error.getMessage());
+                                    System.out.println("Failed to convert in " + failedExperiment.baseExperiment + ". Error: " + error.getMessage());
                                     System.exit(2);
                                 }
                         );

@@ -11,7 +11,7 @@ import java.util.List;
 public interface SixpackApi {
 
     @GET("/participate")
-    public void participate(
+    void participate(
             @Query("experiment") Experiment experiment,
             @Query("alternatives") List<Alternative> alternatives,
             @Query("force") Alternative forcedAlternative,
@@ -20,7 +20,7 @@ public interface SixpackApi {
     );
 
     @GET("/convert")
-    public void convert(
+    void convert(
             @Query("experiment") Experiment experiment,
             Callback<ConvertResponse> callback
     );
