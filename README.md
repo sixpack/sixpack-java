@@ -96,7 +96,7 @@ It is recommended that you maintain a singleton instance of `Sixpack` with the D
 
 ### Contributing
 
-0. For this repo and clone your fork
+0. Fork this repo and clone your fork
 0. Make your desired changes
 0. Add tests for your new feature and ensure all tests are passing
 0. Commit and push
