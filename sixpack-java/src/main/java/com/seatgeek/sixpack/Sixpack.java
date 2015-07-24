@@ -22,13 +22,26 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Primary class for interacting with Sixpack A/B testing. For full documentation about sixpack-java,
+ * please check out the README at [github.com/seatgeek/sixpack-java](https://github.com/seatgeek/sixpack-java#sixpack-java)
+ *
+ * If you're looking for getting started information with an instance of a Sixpack server, please
+ * read the main project's documentation on that subject at [github.com/seatgeek/sixpack](https://github.com/seatgeek/sixpack/#getting-started)
+ */
 public class Sixpack {
 
+    /**
+     * Default url for a {@link Sixpack} instance hosted with default configuration on the local machine
+     */
     public static final String DEFAULT_URL = "http://localhost:5000";
 
+    /**
+     * By default, Sixpack will log nothing
+     */
     public static final LogLevel DEFAULT_LOG_LEVEL = LogLevel.NONE;
 
-    public static final String SIXPACK_LOG_TAG = "Sixpack";
+    private static final String SIXPACK_LOG_TAG = "Sixpack";
 
     private final SixpackApi api;
 
@@ -38,6 +51,7 @@ public class Sixpack {
 
     private Logger logger = PlatformLogger.INSTANCE.getLogger();
 
+    /** not exposed, use {@link SixpackBuilder} */
     Sixpack(final String sixpackUrl, final String clientId, final Client client) {
         this.clientId = clientId;
         this.api = getDefaultApi(sixpackUrl, clientId, logLevel, client);
@@ -52,86 +66,60 @@ public class Sixpack {
         this.api = api;
     }
 
+    /**
+     * Creates a new {@link ExperimentBuilder} for starting a new experiment
+     */
     public ExperimentBuilder experiment() {
         return new ExperimentBuilder(this);
     }
 
-    void logNewExperiment(final String name, final Set<Alternative> alternatives, final Alternative forcedChoice, final Double trafficFraction) {
-        if (logLevel.isAtLeastVerbose()) {
-            logger.log(
-                    SIXPACK_LOG_TAG,
-                    String.format(
-                            "Created new Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                            name, alternatives, forcedChoice, trafficFraction
-                    )
-            );
-        } else if (logLevel.isAtLeastDebug()) {
-            logger.log(SIXPACK_LOG_TAG, String.format("Created new Experiment: name=%s", name));
-        }
-    }
-
+    /**
+     * While you can query the current client id, you must create a new {@link Sixpack} instance to change it
+     * @return the current client id being used by this sixpack instance
+     */
     public String getClientId() {
         return clientId;
     }
 
     /**
-     * todo docs
-     * @param logLevel
+     * Sets the log level used by various functions of the Sixpack client.
+     *
+     * Roughly:
+     *
+     * - `LogLevel.VERBOSE` is going to enable full logging for all events
+     * - `LogLevel.DEBUG` is going to enable basic logging for most events
+     * - `LogLevel.NONE` will disable logging entirely
+     * @param logLevel the new log level
      */
     public void setLogLevel(LogLevel logLevel) {
         this.logLevel = logLevel;
     }
 
     /**
-     * todo docs
-     * @return
+     * @return the current {@link LogLevel} being used by Sixpack for
      */
     public LogLevel getLogLevel() {
         return logLevel;
     }
 
+    /**
+     * @param logger the new {@link Logger} that this Sixpack instance will use for logging events
+     */
     public void setLogger(final Logger logger) {
         this.logger = logger;
     }
 
     /**
-     * todo docs
-     * @return
+     * @return a randomly generated, UUID formatted, client id for use with a Sixpack instance
      */
     public static String generateRandomClientId() {
         return UUID.randomUUID().toString();
     }
 
-    void logUseOfDefaultUrl() {
-        if (logLevel.isAtLeastDebug()) {
-            logger.log(SIXPACK_LOG_TAG, "Warning! Using default Sixpack url of " + DEFAULT_URL +
-                    ". If your server instance is not set up locally on your machine your requests will fail!");
-        }
-    }
-
-    void logGeneratedClientId(final String clientId) {
-        if (logLevel.isAtLeastDebug()) {
-            logger.log(SIXPACK_LOG_TAG, String.format("Warning! Using auto-generated client id of %s" +
-                    ". If your client id changes on each instance creation, you won't get the same test results", clientId));
-        }
-    }
-
-    void logNewInstanceCreation(final String sixpackUrl, final String clientId) {
-        if (logLevel.isAtLeastVerbose()) {
-            logger.log(
-                    SIXPACK_LOG_TAG,
-                    String.format(
-                            "Created new Sixpack client with sixpackUrl=%s, clientId=%s",
-                            sixpackUrl, clientId
-                    )
-            );
-        } else if (logLevel.isAtLeastDebug()) {
-            logger.log(SIXPACK_LOG_TAG, "Created new Sixpack client");
-        }
-    }
+    /* end public methods */
 
     /**
-     * Internal method used by {@code Experiment} to start a participation in a test
+     * Internal method used by {@link Experiment} to start a participation in a test
      */
     void participateIn(final Experiment experiment, final OnParticipationSuccess success, final OnParticipationFailure failure) {
         logParticipate(experiment);
@@ -144,21 +132,8 @@ public class Sixpack {
         );
     }
 
-    private void logParticipate(final Experiment experiment) {
-        if (logLevel.isAtLeastVerbose()) {
-            logger.log(
-                    SIXPACK_LOG_TAG,
-                    String.format(
-                            "Participating in Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                            experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
-                    )
-            );        } else if (logLevel.isAtLeastDebug()) {
-            logger.log(SIXPACK_LOG_TAG, String.format("Participating in Experiment: name=%s", experiment.name));
-        }
-    }
-
     /**
-     * Internal method used by {@code ParticipatingExperiment} to indicate that a conversion has occurred
+     * Internal method used by {@link ParticipatingExperiment} to indicate that a conversion has occurred
      */
     void convert(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
         logConvert(experiment);
@@ -168,21 +143,8 @@ public class Sixpack {
         );
     }
 
-    private void logConvert(final ParticipatingExperiment experiment) {
-        if (logLevel.isAtLeastVerbose()) {
-            logger.log(
-                    SIXPACK_LOG_TAG,
-                    String.format(
-                            "Converting Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                            experiment.baseExperiment.name, experiment.baseExperiment.alternatives, experiment.baseExperiment.forcedChoice, experiment.baseExperiment.trafficFraction
-                    )
-            );        } else if (logLevel.isAtLeastDebug()) {
-            logger.log(SIXPACK_LOG_TAG, String.format("Converting Experiment: name=%s", experiment.baseExperiment.name));
-        }
-    }
-
     /**
-     * Internal method for getting the Retrofit {@code Callback} to use in the participation request
+     * Internal method for getting the Retrofit {@link Callback} to use in the participation request
      */
     Callback<ParticipateResponse> getParticipateCallback(final Experiment experiment, final OnParticipationSuccess success, final OnParticipationFailure failure) {
         return new Callback<ParticipateResponse>() {
@@ -202,7 +164,7 @@ public class Sixpack {
     }
 
     /**
-     * Internal method for getting the Retrofit {@code Callback} to use in the convert request
+     * Internal method for getting the Retrofit {@link Callback} to use in the convert request
      */
     Callback<ConvertResponse> getConvertCallback(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
         return new Callback<ConvertResponse>() {
@@ -222,7 +184,7 @@ public class Sixpack {
     }
 
     /**
-     * Internal method for building the SixpackApi RestAdapter and returning the Api instance
+     * Internal method for building the {@link SixpackApi} Rest Adapter and returning the Api instance
      */
     static SixpackApi getDefaultApi(final String sixpackUrl, final String clientId, final LogLevel logLevel, final Client client) {
         Endpoint sixpackEndpoint = getSixpackEndpoint(sixpackUrl);
@@ -294,5 +256,77 @@ public class Sixpack {
                 return "SixPack";
             }
         };
+    }
+
+    /* logging */
+
+    void logNewExperiment(final String name, final Set<Alternative> alternatives, final Alternative forcedChoice, final Double trafficFraction) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Created new Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            name, alternatives, forcedChoice, trafficFraction
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Created new Experiment: name=%s", name));
+        }
+    }
+
+    void logUseOfDefaultUrl() {
+        if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, "Warning! Using default Sixpack url of " + DEFAULT_URL +
+                    ". If your server instance is not set up locally on your machine your requests will fail!");
+        }
+    }
+
+    void logGeneratedClientId(final String clientId) {
+        if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Warning! Using auto-generated client id of %s" +
+                    ". If your client id changes on each instance creation, you won't get the same test results", clientId));
+        }
+    }
+
+    void logNewInstanceCreation(final String sixpackUrl, final String clientId) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Created new Sixpack client with sixpackUrl=%s, clientId=%s",
+                            sixpackUrl, clientId
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, "Created new Sixpack client");
+        }
+    }
+
+    void logParticipate(final Experiment experiment) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Participating in Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Participating in Experiment: name=%s", experiment.name));
+        }
+    }
+
+    void logConvert(final ParticipatingExperiment experiment) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Converting Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            experiment.baseExperiment.name, experiment.baseExperiment.alternatives, experiment.baseExperiment.forcedChoice, experiment.baseExperiment.trafficFraction
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Converting Experiment: name=%s", experiment.baseExperiment.name));
+        }
     }
 }

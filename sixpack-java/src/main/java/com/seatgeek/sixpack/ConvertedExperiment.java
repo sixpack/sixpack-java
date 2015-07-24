@@ -1,9 +1,18 @@
 package com.seatgeek.sixpack;
 
+/**
+ * A successfully converted {@link ParticipatingExperiment}. Hooray!
+ */
 public class ConvertedExperiment {
 
+    /**
+     * The {@link Sixpack} instance that this ConvertedExperiment is associated with
+     */
     public final Sixpack sixpack;
 
+    /**
+     * The {@link Experiment} that this ConvertedExperiment originated from
+     */
     public final Experiment baseExperiment;
 
     ConvertedExperiment(Sixpack sixpack, Experiment baseExperiment) {

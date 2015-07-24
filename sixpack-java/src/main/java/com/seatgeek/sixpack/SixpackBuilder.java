@@ -6,6 +6,19 @@ import com.seatgeek.sixpack.log.PlatformLogger;
 
 import retrofit.client.Client;
 
+/**
+ * Builder for creating a new {@link Sixpack} instance.
+ *
+ * ### Example usage
+ *
+ *
+ * ```java
+ *   Sixpack sixpack = new SixpackBuilder()
+ *       .setSixpackUrl("http://api.mycompany.com/sixpack")
+ *       .setClientId(user != null ? user.sixpackId : getCachedClientId())
+ *       .build();
+ * ```
+ */
 public class SixpackBuilder {
     private String sixpackUrl;
     private String clientId;
@@ -13,35 +26,69 @@ public class SixpackBuilder {
     private Client client;
     private Logger logger;
 
+    /**
+     * Sets the Sixpack server url that will be used by this client
+     *
+     * @param sixpackUrl the server url for the Sixpack server
+     * @return this {@link SixpackBuilder} for method chaining
+     */
     public SixpackBuilder setSixpackUrl(String sixpackUrl) {
         this.sixpackUrl = sixpackUrl;
         return this;
     }
 
+    /**
+     * Sets the client id that this {@link Sixpack} client will pass to the Sixpack server when
+     * participating and converting tests. It's important that you generate this value once and then
+     * cache it so that your client id doesn't change between sessions. It can be useful to store this
+     * id on your server information for a given user so that the user can participate in cross-platform
+     * tests.
+     *
+     * @param clientId the client id that will be used by the resulting {@link Sixpack} instance
+     * @return this {@link SixpackBuilder} for method chaining
+     */
     public SixpackBuilder setClientId(String clientId) {
         this.clientId = clientId;
         return this;
     }
 
+    /**
+     * Provide a custom {@link Logger} that will be used by the {@link Sixpack} instance. By default
+     * Sixpack will log to stdout in Java apps and logcat in Android apps.
+     *
+     * @param logger the custom logger to use
+     * @return this {@link SixpackBuilder} for method chaining
+     */
     public SixpackBuilder setLogger(Logger logger) {
         this.logger = logger;
         return this;
     }
 
+    /**
+     * @param logLevel the level of logging that will be performed by the {@link Sixpack} instance
+     * @return this {@link SixpackBuilder} for method chaining
+     */
     public SixpackBuilder setLogLevel(LogLevel logLevel) {
         this.logLevel = logLevel;
         return this;
     }
 
+    /**
+     * Sets the {@link Client} that Retrofit will use. You can pass in your custom {@link retrofit.client.OkClient}
+     * to provide a shared {@link com.squareup.okhttp.OkHttpClient} with the rest of your app
+     *
+     * @param client the {@link Client} that will be used to make requests to the Sixpack server
+     * @return this {@link SixpackBuilder} for method chaining
+     */
     public SixpackBuilder setHttpClient(Client client) {
         this.client = client;
         return this;
     }
 
-    public String getSixpackUrl() {
-        return sixpackUrl;
-    }
-
+    /**
+     * @return the new {@link Sixpack} instance specified by this builder. If defaults values are used
+     * for the server url and/or the client_id, it will be logged
+     */
     public Sixpack build() {
         boolean usedDefaultUrl = false;
         if (sixpackUrl == null || sixpackUrl.length() == 0) {
@@ -76,5 +123,10 @@ public class SixpackBuilder {
         sixpack.logNewInstanceCreation(sixpackUrl, clientId);
 
         return sixpack;
+    }
+
+    // package method for testing
+    String getSixpackUrl() {
+        return sixpackUrl;
     }
 }
