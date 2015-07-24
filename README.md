@@ -57,56 +57,54 @@ It is recommended that you maintain a singleton instance of `Sixpack` with the D
 
 ### Creating Experiments
 
-1. Create a new experiment from your `Sixpack` instance:
+0. Create a new experiment from your `Sixpack` instance:
 
-```java
-    Experiment colorsExperiment = Sixpack.experiment()
-            .withName("Colors")
-            .withAlternative(new Alternative("Red"))
-            .withAlternative(new Alternative("Green"))
-            .withAlternative(new Alternative("Blue"))
-            .withAlternative(new Alternative("Control"))
-            .build();
-```
+    ```java
+        Experiment colorsExperiment = Sixpack.experiment()
+                .withName("Colors")
+                .withAlternative(new Alternative("Red"))
+                .withAlternative(new Alternative("Green"))
+                .withAlternative(new Alternative("Blue"))
+                .withAlternative(new Alternative("Control"))
+                .build();
+    ```
+0. Participate in that new `Experiment` by calling `participate()`
 
-2. Participate in that new `Experiment` by calling `participate()`
+    ```java
+        colorsExperiment.participate(
+                (participatingExperiment) -> {
+                    // success!
+                    this.participatingExperiment = participatingExperiment;
+                },
+                (experiment, error) -> {
+                    // failure, check network connection and try to participate again or fallback to a default
+                }
+        );
+    ```
+0. When the user performs the action measured in the test, convert the experiment
 
-```java
-    colorsExperiment.participate(
-            (participatingExperiment) -> {
-                // success!
-                this.participatingExperiment = participatingExperiment;
-            },
-            (experiment, error) -> {
-                // failure, check network connection and try to participate again or fallback to a default
-            }
-    );
-```
-
-3. When the user performs the action measured in the test, convert the experiment
-
-```java
-    participatingExperiment.convert(
-            (convertedExperiment) -> {
-                // success!
-            },
-            (experiment, error) -> {
-                // failure, check network connection and try to convert again
-            }
-    );
-```
+    ```java
+        participatingExperiment.convert(
+                (convertedExperiment) -> {
+                    // success!
+                },
+                (experiment, error) -> {
+                    // failure, check network connection and try to convert again
+                }
+        );
+    ```
 
 ### Contributing
 
-1. For this repo and clone your fork
-2. Make your desired changes
-3. Add tests for your new feature and ensure all tests are passing
-4. Commit and push
-5. Submit a Pull Request through Github's interface and a project maintainer will decide your changes
+0. For this repo and clone your fork
+0. Make your desired changes
+0. Add tests for your new feature and ensure all tests are passing
+0. Commit and push
+0. Submit a Pull Request through Github's interface and a project maintainer will decide your changes
     fate.
 
 _note: issues can be submitted via [github issues](https://github.com/seatgeek/sixpack-java/issues/new)_
 
-## #License
+### License
 
 Sixpack-Java is released under the [BSD 2-Clause License](http://opensource.org/licenses/BSD-2-Clause)
