@@ -4,7 +4,7 @@
 
 A Java client for SeatGeek's Sixpack a/b testing framework: https://github.com/seatgeek/sixpack
 
-# Installing
+### Installing
 
 Sixpack-java is currently only being deployed to maven snapshots, to use it, add the following dependency to your build.gradle:
 
@@ -28,19 +28,19 @@ or, if you're a maven user:
 </dependency>
 ```
 
-# Overview
+### Overview
 
 The Sixpack client has some nomenclature to be familiar with...
 
-- A `Sixpack server` is the deployment of the [Sixpack-server](https://github.com/seatgeek/sixpack)
+- A _Sixpack server_ is the deployment of the [Sixpack-server](https://github.com/seatgeek/sixpack)
     that will be hosting your test results
-- An `Experiment` represents a single test in the Sixpack server. It can have multiple Alternatives
-- An `Alternative` is one potential result returned to the client when participating in an experiment
-- You start a test by `participating` in an Experiment with Alternatives
-- Once the server has selected an Alternative for you, you can `convert` the Experiment when the user
-    performs the action that you're looking to measure
+- An _experiment_ represents a single test in the _Sixpack server_. It can have multiple _alternatives_
+- An _alternative_ is one potential result returned to the client when _participating_ in an _experiment_
+- You start a test by _participating_ in an _experiment_ with _alternatives_
+- Once the server has selected an _alternative_ for you, you can _convert_ the _experiment_ when the user
+    performs the action that you're measuring
 
-# Getting Started
+### Getting Started
 
 After [installing](#installing)...
 
@@ -55,7 +55,7 @@ The first thing to do is create a `Sixpack` client using the `SixpackBuilder`:
 
 It is recommended that you maintain a singleton instance of `Sixpack` with the DI library of your choice.
 
-# Creating Experiments
+### Creating Experiments
 
 1. Create a new experiment from your `Sixpack` instance:
 
@@ -96,7 +96,7 @@ It is recommended that you maintain a singleton instance of `Sixpack` with the D
     );
 ```
 
-# Contributing
+### Contributing
 
 1. For this repo and clone your fork
 2. Make your desired changes
@@ -107,6 +107,6 @@ It is recommended that you maintain a singleton instance of `Sixpack` with the D
 
 _note: issues can be submitted via [github issues](https://github.com/seatgeek/sixpack-java/issues/new)_
 
-# License
+## #License
 
 Sixpack-Java is released under the [BSD 2-Clause License](http://opensource.org/licenses/BSD-2-Clause)
