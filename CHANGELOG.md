@@ -1,7 +1,8 @@
 Change Log
 ==========
 
-Version 0.0.1 *(tbd)*
+Version 0.1
 ----------------------------
 
-* There are no official releases of sixpack-java at this time
+* Initial snapshot release of sixpack-java
+* Full support for creating, participating in and converting experiments
