@@ -1,6 +1,6 @@
 # sixpack-java
 
-[![Build Status](https://travis-ci.org/seatgeek/sixpack-java.svg?branch=master)](https://travis-ci.org/seatgeek/sixpack-java) [![Coverage Status](https://coveralls.io/repos/seatgeek/sixpack-java/badge.svg?branch=master)] (https://coveralls.io/r/seatgeek/sixpack-java?branch=master)
+[![Build Status](https://travis-ci.org/seatgeek/sixpack-java.svg?branch=master)](https://travis-ci.org/seatgeek/sixpack-java) [![Coverage Status](https://coveralls.io/repos/seatgeek/sixpack-java/badge.svg?branch=master&service=github&t=rRY7ax)](https://coveralls.io/github/seatgeek/sixpack-java?branch=master)
 
 A Java client for SeatGeek's Sixpack a/b testing framework: https://github.com/seatgeek/sixpack
 
