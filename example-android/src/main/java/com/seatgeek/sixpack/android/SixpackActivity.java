@@ -1,8 +1,8 @@
 package com.seatgeek.sixpack.android;
 
 import android.graphics.Color;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class SixpackActivity extends ActionBarActivity {
+public class SixpackActivity extends AppCompatActivity {
     @Inject @Named(SixpackModule.BUTTON_COLOR) Experiment buttonColor;
 
     @InjectView(R.id.colorful_button) Button colorfulButton;
