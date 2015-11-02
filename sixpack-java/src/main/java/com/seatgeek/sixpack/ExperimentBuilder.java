@@ -2,6 +2,7 @@ package com.seatgeek.sixpack;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -11,11 +12,13 @@ import java.util.Set;
  *
  * ```java
  *   Experiment colorsExperiment = Sixpack.experiment()
- *       .withName("Colors")
- *       .withAlternative(new Alternative("Red"))
- *       .withAlternative(new Alternative("Green"))
- *       .withAlternative(new Alternative("Blue"))
- *       .withAlternative(new Alternative("Control"))
+ *       .withName("colors")
+ *       .withAlternatives(
+ *              new Alternative("control"),
+ *              new Alternative("red"),
+ *              new Alternative("green"),
+ *              new Alternative("blue")
+ *        )
  *       .build();
  * ```
  */
@@ -57,47 +60,28 @@ public class ExperimentBuilder {
     }
 
     /**
-     * Sets the Set of {@link Alternative}s that this {@link Experiment} will have. e.g. ["Red",
-     * "Green", "Blue", "Control"]
+     * Sets the Set of {@link Alternative}s that this {@link Experiment} will have. e.g. ["control", "red",
+     * "green", "blue"]
      *
-     * @param alternatives the {@link Alternative}s to be used in this {@link Experiment}
+     * @param control the control {@link Alternative} for this experiment
+     * @param alternatives the other {@link Alternative}s that will be used in this {@link Experiment}
      * @return this {@link ExperimentBuilder} to allow method chaining
      */
-    public ExperimentBuilder withAlternatives(Set<Alternative> alternatives) {
-        if (this.alternatives == null) {
-            this.alternatives = new HashSet<>(alternatives.size());
+    public ExperimentBuilder withAlternatives(Alternative control, Alternative... alternatives) {
+        if (control == null) {
+            throw new IllegalArgumentException("Cannot create experiment with null control");
         }
-        this.alternatives.addAll(alternatives);
-        return this;
-    }
 
-    /**
-     * Sets the Set of {@link Alternative}s that this {@link Experiment} will have. e.g. ["Red",
-     * "Green", "Blue", "Control"]
-     *
-     * @param alternatives the {@link Alternative}s that will be used in this {@link Experiment}
-     * @return this {@link ExperimentBuilder} to allow method chaining
-     */
-    public ExperimentBuilder withAlternatives(Alternative... alternatives) {
         if (this.alternatives == null) {
-            this.alternatives = new HashSet<>(alternatives.length);
+            this.alternatives = new LinkedHashSet<>((alternatives != null ? alternatives.length : 0) + 1);
         }
-        Collections.addAll(this.alternatives, alternatives);
-        return this;
-    }
 
-    /**
-     * Adds an {@link Alternative} to the Set of {@link Alternative}s that this {@link Experiment}
-     * will have. e.g. ["Red", "Green", "Blue", "Control"]
-     *
-     * @param alternative one {@link Alternative} to be added to this {@link Experiment}
-     * @return this {@link ExperimentBuilder} to allow method chaining
-     */
-    public ExperimentBuilder withAlternative(Alternative alternative) {
-        if (this.alternatives == null) {
-            this.alternatives = new HashSet<>();
+        this.alternatives.add(control);
+
+        if (alternatives != null) {
+            Collections.addAll(this.alternatives, alternatives);
         }
-        this.alternatives.add(alternative);
+
         return this;
     }
 

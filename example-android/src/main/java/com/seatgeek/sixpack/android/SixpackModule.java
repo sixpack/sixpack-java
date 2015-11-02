@@ -18,7 +18,7 @@ import dagger.Provides;
         }
 )
 public class SixpackModule {
-    public static final String BUTTON_COLOR = "Button Color";
+    public static final String BUTTON_COLOR = "button-color";
     public static final String BUTTON_COLOR_RED = "red";
     public static final String BUTTON_COLOR_BLUE = "blue";
 
