@@ -56,6 +56,19 @@ public class Experiment {
     }
 
     /**
+     * Much like the call to {@link #participate()}, this method will call to the sixpack server and
+     * fetch the alternative to use in the test. Unlike participate though, this will
+     * <p/>
+     * If an exception occurs trying to prefetch the alternative, the control alternative will
+     * be selected and returned.
+     * <p/>
+     * This call makes blocking network requests.
+     */
+    public PrefetchedExperiment prefetch() {
+        return sixpack.prefetch(this);
+    }
+
+    /**
      * @return true if this Experiment was created with a forced {@link Alternative} choice
      */
     public boolean hasForcedChoice() {
@@ -70,4 +83,5 @@ public class Experiment {
     public Alternative getControlAlternative() {
         return alternatives.iterator().next();
     }
+
 }

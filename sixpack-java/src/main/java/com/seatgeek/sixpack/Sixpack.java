@@ -133,13 +133,35 @@ public class Sixpack {
             ParticipateResponse response = api.participate(experiment,
                     new ArrayList<>(experiment.alternatives),
                     experiment.forcedChoice,
-                    experiment.trafficFraction
+                    experiment.trafficFraction,
+                    null
             );
 
             return new ParticipatingExperiment(Sixpack.this, experiment, response.getSelectedAlternative());
         } catch (RuntimeException e) {
             logException(experiment, e);
             return new ParticipatingExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
+        }
+    }
+
+    /**
+     * Internal method used by {@link Experiment} to prefetch a selected alternative
+     */
+    PrefetchedExperiment prefetch(final Experiment experiment) {
+        logParticipate(experiment);
+
+        try {
+            ParticipateResponse response = api.participate(experiment,
+                    new ArrayList<>(experiment.alternatives),
+                    experiment.forcedChoice,
+                    experiment.trafficFraction,
+                    true
+            );
+
+            return new PrefetchedExperiment(Sixpack.this, experiment, response.getSelectedAlternative());
+        } catch (RuntimeException e) {
+            logException(experiment, e);
+            return new PrefetchedExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
         }
     }
 

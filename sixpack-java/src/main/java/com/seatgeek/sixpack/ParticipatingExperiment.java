@@ -9,7 +9,7 @@ public class ParticipatingExperiment {
     /**
      * The {@link Sixpack} instance that this {@link ParticipatingExperiment is associated with}
      */
-    public final Sixpack sixpack;
+    private final Sixpack sixpack;
 
     /**
      * The {@link Experiment} that this {@link ParticipatingExperiment} was created from
@@ -48,16 +48,23 @@ public class ParticipatingExperiment {
 
         if (!baseExperiment.equals(that.baseExperiment)) return false;
         if (!selectedAlternative.equals(that.selectedAlternative)) return false;
-        if (!sixpack.equals(that.sixpack)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = sixpack.hashCode();
-        result = 31 * result + baseExperiment.hashCode();
+        int result = baseExperiment.hashCode();
         result = 31 * result + selectedAlternative.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ParticipatingExperiment{" +
+                "sixpack=" + sixpack +
+                ", baseExperiment=" + baseExperiment +
+                ", selectedAlternative=" + selectedAlternative +
+                '}';
     }
 }

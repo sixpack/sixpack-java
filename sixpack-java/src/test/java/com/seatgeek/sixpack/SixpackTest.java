@@ -90,28 +90,29 @@ public class SixpackTest {
     public void testParticipateInSuccess() {
         ParticipateResponse response = new ParticipateResponse();
         AlternativeName name = new AlternativeName();
-        name.name = "green";
+        name.name = "red";
         response.alternative = name;
 
-        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble()))
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
                 .thenReturn(response);
 
         Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
         ParticipatingExperiment participatingExperiment = sixpack.participate(experiment);
 
-        assertEquals(new ParticipatingExperiment(sixpack, experiment, new Alternative("green")), participatingExperiment);
+        assertEquals(new ParticipatingExperiment(sixpack, experiment, redAlternative), participatingExperiment);
     }
 
     @Test
-    public void testNetworkFailureReturnsControl() {
-        ParticipateResponse response = new ParticipateResponse();
-        AlternativeName name = new AlternativeName();
-        name.name = "green";
-        response.alternative = name;
-
-        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble()))
+    public void testParticipateNetworkFailureReturnsControl() {
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
                 .thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
 
         Sixpack sixpack = new Sixpack(mockApi);
@@ -127,6 +128,51 @@ public class SixpackTest {
         ParticipatingExperiment participatingExperiment = sixpack.participate(experiment);
 
         assertEquals(new ParticipatingExperiment(sixpack, experiment, greenAlternative), participatingExperiment);
+    }
+
+    @Test
+    public void testPrefetchSuccess() {
+        ParticipateResponse response = new ParticipateResponse();
+        AlternativeName name = new AlternativeName();
+        name.name = "red";
+        response.alternative = name;
+
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
+                .thenReturn(response);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
+
+        PrefetchedExperiment prefetched = sixpack.prefetch(experiment);
+
+        assertEquals(new PrefetchedExperiment(sixpack, experiment, redAlternative), prefetched);
+    }
+
+    @Test
+    public void testPrefetchNetworkFailureReturnsControl() {
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
+                .thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
+
+        Sixpack sixpack = new Sixpack(mockApi);
+
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
+
+        PrefetchedExperiment prefetched = sixpack.prefetch(experiment);
+
+        assertEquals(new PrefetchedExperiment(sixpack, experiment, greenAlternative), prefetched);
     }
 
     @Test
