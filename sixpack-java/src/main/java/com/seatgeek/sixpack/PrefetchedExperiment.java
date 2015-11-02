@@ -1,5 +1,10 @@
 package com.seatgeek.sixpack;
 
+/**
+ * Used after a call to {@link Experiment#prefetch()} as a cached selection. When the action under
+ * test starts, a call to {@link #participate()} should be made for the results to count against your
+ * test.
+ */
 public class PrefetchedExperiment {
 
     private final Sixpack sixpack;
@@ -14,6 +19,9 @@ public class PrefetchedExperiment {
         selectedAlternative = alternative;
     }
 
+    /**
+     * Turns this prefetched alternative into an active one.
+     */
     public ParticipatingExperiment participate() {
         return sixpack.participate(baseExperiment);
     }
