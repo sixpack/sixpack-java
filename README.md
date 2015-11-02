@@ -61,11 +61,13 @@ It is recommended that you maintain a singleton instance of `Sixpack` with the D
 
     ```java
         Experiment colorsExperiment = Sixpack.experiment()
-                .withName("Colors")
-                .withAlternative(new Alternative("Red"))
-                .withAlternative(new Alternative("Green"))
-                .withAlternative(new Alternative("Blue"))
-                .withAlternative(new Alternative("Control"))
+                .withName("colors")
+                .withAlternatives(
+                    new Alternative("control"),
+                    new Alternative("red"),
+                    new Alternative("green"),
+                    new Alternative("blue")
+                )
                 .build();
     ```
 0. Participate in that new `Experiment` by calling `participate()`

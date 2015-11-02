@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -29,7 +30,7 @@ public class ExperimentTest {
         String name = "test-experiment";
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .withName(name)
                 .build();
 
@@ -43,7 +44,7 @@ public class ExperimentTest {
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .build();
 
         assertEquals(name, experiment.name);
@@ -82,9 +83,7 @@ public class ExperimentTest {
 
         Experiment experimentA = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(one)
-                .withAlternative(two)
-                .withAlternative(three)
+                .withAlternatives(one, two, three)
                 .build();
 
         Experiment experimentB = new ExperimentBuilder(mockSixpack)
@@ -92,19 +91,13 @@ public class ExperimentTest {
                 .withAlternatives(one, two, three)
                 .build();
 
-        Set<Alternative> setOfAlternatives = new HashSet<Alternative>();
+        Set<Alternative> setOfAlternatives = new LinkedHashSet<>();
         setOfAlternatives.add(one);
         setOfAlternatives.add(two);
         setOfAlternatives.add(three);
 
-        Experiment experimentC = new ExperimentBuilder(mockSixpack)
-                .withName(name)
-                .withAlternatives(setOfAlternatives)
-                .build();
-
         assertEquals(setOfAlternatives, experimentA.alternatives);
         assertEquals(setOfAlternatives, experimentB.alternatives);
-        assertEquals(setOfAlternatives, experimentC.alternatives);
     }
 
     @Test(expected = NoAlternativesException.class)
@@ -115,24 +108,13 @@ public class ExperimentTest {
                 .build();
     }
 
-    @Test(expected = NoAlternativesException.class)
-    public void testEmptyAlternativesThrows() {
-        String name = "test-experiment";
-        Set<Alternative> emptyAlternatives = new HashSet<Alternative>();
-
-        new ExperimentBuilder(mockSixpack)
-                .withName(name)
-                .withAlternatives(emptyAlternatives)
-                .build();
-    }
-
-    @Test(expected = NoAlternativesException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testNullAlternativesThrows() {
         String name = "test-experiment";
 
         new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternatives()
+                .withAlternatives(null)
                 .build();
     }
 
@@ -143,7 +125,7 @@ public class ExperimentTest {
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .withForcedChoice(test)
                 .build();
 
@@ -159,7 +141,7 @@ public class ExperimentTest {
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .build();
 
         assertFalse(experiment.hasForcedChoice());
@@ -174,7 +156,7 @@ public class ExperimentTest {
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .withTrafficFraction(fraction)
                 .build();
 
@@ -204,7 +186,7 @@ public class ExperimentTest {
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .build();
 
         assertEquals(name, experiment.toString());
@@ -217,7 +199,7 @@ public class ExperimentTest {
 
         Experiment experiment = new ExperimentBuilder(mockSixpack)
                 .withName(name)
-                .withAlternative(test)
+                .withAlternatives(test)
                 .build();
 
         experiment.participate(mockSuccess, mockFailure);

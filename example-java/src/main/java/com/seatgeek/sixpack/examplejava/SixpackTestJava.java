@@ -21,7 +21,7 @@ public class SixpackTestJava {
 
         // build a new Experiment
         Experiment pillColor = sixpack.experiment()
-                .withName("Pill Color")
+                .withName("pill-color")
                 .withAlternatives(
                         new Alternative("red"),
                         new Alternative("blue")
