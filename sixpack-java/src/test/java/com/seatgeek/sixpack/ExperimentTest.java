@@ -2,7 +2,6 @@ package com.seatgeek.sixpack;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.HashSet;
@@ -10,7 +9,6 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ExperimentTest {
@@ -51,20 +49,22 @@ public class ExperimentTest {
         assertEquals(name, experiment.name);
     }
 
-    @Test(expected = NoExperimentNameException.class)
-    public void testEmptyNameThrows() {
-        String name = "";
-
+    @Test(expected = IllegalArgumentException.class)
+    public void testNoEmptyNames() {
         new ExperimentBuilder(mockSixpack)
-                .withName(name)
-                .build();
+                .withName("");
     }
 
-    @Test(expected = NoExperimentNameException.class)
-    public void testNullNameThrows() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNoNullNames() {
         new ExperimentBuilder(mockSixpack)
-                .withName(null)
-                .build();
+                .withName(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadName() {
+        new ExperimentBuilder(mockSixpack)
+                .withName("bad.name");
     }
 
     @Test(expected = NoExperimentNameException.class)

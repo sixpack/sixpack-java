@@ -21,6 +21,7 @@ import retrofit.converter.GsonConverter;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Primary class for interacting with Sixpack A/B testing. For full documentation about sixpack-java,
@@ -35,6 +36,10 @@ public class Sixpack {
      * Default url for a {@link Sixpack} instance hosted with default configuration on the local machine
      */
     public static final String DEFAULT_URL = "http://localhost:5000";
+
+    public static final String NAME_REGEX = "^[a-z0-9][a-z0-9\\-_ ]*$";
+
+    public static final Pattern NAME_PATTERN = Pattern.compile(NAME_REGEX);
 
     /**
      * By default, Sixpack will log nothing
