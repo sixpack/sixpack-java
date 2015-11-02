@@ -57,7 +57,9 @@ public class Experiment {
 
     /**
      * Much like the call to {@link #participate()}, this method will call to the sixpack server and
-     * fetch the alternative to use in the test. Unlike participate though, this will
+     * fetch the alternative to use in the test. Unlike participate though, this will _NOT_ cause
+     * the user to be a participant in the test, it will just get the selected alternative for caching
+     * purposes. There will need to be a follow up call to {@link PrefetchedExperiment#participate()}
      * <p/>
      * If an exception occurs trying to prefetch the alternative, the control alternative will
      * be selected and returned.
