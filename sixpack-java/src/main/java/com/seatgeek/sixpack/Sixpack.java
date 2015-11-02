@@ -126,66 +126,37 @@ public class Sixpack {
     /**
      * Internal method used by {@link Experiment} to start a participation in a test
      */
-    void participateIn(final Experiment experiment, final OnParticipationSuccess success, final OnParticipationFailure failure) {
+    ParticipatingExperiment participate(final Experiment experiment) {
         logParticipate(experiment);
 
-        api.participate(experiment,
-                new ArrayList<>(experiment.alternatives),
-                experiment.forcedChoice,
-                experiment.trafficFraction,
-                getParticipateCallback(experiment, success, failure)
-        );
+        try {
+            ParticipateResponse response = api.participate(experiment,
+                    new ArrayList<>(experiment.alternatives),
+                    experiment.forcedChoice,
+                    experiment.trafficFraction
+            );
+
+            return new ParticipatingExperiment(Sixpack.this, experiment, response.getSelectedAlternative());
+        } catch (RuntimeException e) {
+            logException(experiment, e);
+            return new ParticipatingExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
+        }
     }
 
     /**
      * Internal method used by {@link ParticipatingExperiment} to indicate that a conversion has occurred
      */
-    void convert(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
+    ConvertedExperiment convert(final ParticipatingExperiment experiment) {
         logConvert(experiment);
 
-        api.convert(experiment.baseExperiment,
-                getConvertCallback(experiment, success, failure)
-        );
-    }
+        try {
+            ConvertResponse x = api.convert(experiment.baseExperiment);
 
-    /**
-     * Internal method for getting the Retrofit {@link Callback} to use in the participation request
-     */
-    Callback<ParticipateResponse> getParticipateCallback(final Experiment experiment, final OnParticipationSuccess success, final OnParticipationFailure failure) {
-        return new Callback<ParticipateResponse>() {
-
-            public void success(final ParticipateResponse participateResponse, final Response response) {
-                if (success != null) {
-                    success.onParticipation(new ParticipatingExperiment(Sixpack.this, experiment, participateResponse.getSelectedAlternative()));
-                }
-            }
-
-            public void failure(final RetrofitError error) {
-                if (failure != null) {
-                    failure.onParticipationFailed(experiment, error);
-                }
-            }
-        };
-    }
-
-    /**
-     * Internal method for getting the Retrofit {@link Callback} to use in the convert request
-     */
-    Callback<ConvertResponse> getConvertCallback(final ParticipatingExperiment experiment, final OnConvertSuccess success, final OnConvertFailure failure) {
-        return new Callback<ConvertResponse>() {
-
-            public void success(final ConvertResponse convertResponse, final  Response response) {
-                if (success != null) {
-                    success.onConverted(new ConvertedExperiment(Sixpack.this, experiment.baseExperiment));
-                }
-            }
-
-            public void failure(final RetrofitError error) {
-                if (failure != null) {
-                    failure.onConvertFailure(experiment, error);
-                }
-            }
-        };
+            return new ConvertedExperiment(Sixpack.this, experiment.baseExperiment);
+        } catch (RuntimeException e) {
+            logException(experiment.baseExperiment, e);
+            throw new ConversionError(e, experiment.baseExperiment);
+        }
     }
 
     /**
@@ -332,6 +303,21 @@ public class Sixpack {
             );
         } else if (logLevel.isAtLeastDebug()) {
             logger.log(SIXPACK_LOG_TAG, String.format("Converting Experiment: name=%s", experiment.baseExperiment.name));
+        }
+    }
+
+    void logException(final Experiment experiment, final RuntimeException e) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.loge(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Exception with Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
+                    ),
+                    e
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.loge(SIXPACK_LOG_TAG, String.format("Exception with Experiment: name=%s", experiment.name), e);
         }
     }
 }

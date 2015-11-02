@@ -28,39 +28,26 @@ public class SixpackTestJava {
                 ).build();
 
         // participate in the new experiment
-        pillColor.participate(
-                (participatingExperiment) -> {
-                    // We successfully participated, now we can use the alternative specified by Sixpack
-                    System.out.println("Will you take a " + participatingExperiment.selectedAlternative.name + " pill? [y/n]");
-                    String answer = new Scanner(System.in).nextLine();
+        ParticipatingExperiment participatingExperiment = pillColor.participate();
 
-                    if ("y".equalsIgnoreCase(answer)) {
-                        // the user selected the "converting" answer! convert them using the ParticipatingExperiment
-                        participatingExperiment.convert(
-                                (convertedExperiment) -> {
-                                    // And that's it! you should now be able to view your results from sixpack-web
-                                    System.out.println("Success!");
-                                    System.exit(0);
-                                },
-                                (failedExperiment, error) -> {
-                                    // Failing to covert is likely due to network issues... at this point you can try again
-                                    // or backoff and retry, whatever you think makes the most sense for your application
-                                    System.out.println("Failed to convert in " + failedExperiment.baseExperiment + ". Error: " + error.getMessage());
-                                    System.exit(2);
-                                }
-                        );
-                    } else {
-                        System.out.println("Maybe next time");
-                        System.exit(0);
-                    }
-                },
-                (experiment, error) -> {
-                    // We failed to participate (most likely an issue communicating with the Sixpack server); you'll
-                    // likely want to use a default alternative here, and, since participating failed, you won't
-                    // need to worry about throwing off data
-                    System.out.println("Failed to participate in " + experiment + ". Error: " + error.getMessage());
-                    System.exit(1);
-                }
-        );
+        // We successfully participated, now we can use the alternative specified by Sixpack
+        System.out.println("Will you take a " + participatingExperiment.selectedAlternative.name + " pill? [y/n]");
+        String answer = new Scanner(System.in).nextLine();
+
+        if ("y".equalsIgnoreCase(answer)) {
+            // the user selected the "converting" answer! convert them using the ParticipatingExperiment
+            try {
+                participatingExperiment.convert();
+
+                // And that's it! you should now be able to view your results from sixpack-web
+                System.out.println("Success!");
+                System.exit(0);
+            } catch (ConversionError error) {
+                // Failing to covert is likely due to network issues... at this point you can try again
+                // or backoff and retry, whatever you think makes the most sense for your application
+                System.out.println("Failed to convert in " + participatingExperiment.baseExperiment + ". Error: " + error.getMessage());
+                System.exit(2);
+            }
+        }
     }
 }

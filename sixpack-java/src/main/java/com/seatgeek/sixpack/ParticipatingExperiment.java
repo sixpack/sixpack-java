@@ -1,8 +1,8 @@
 package com.seatgeek.sixpack;
 
 /**
- * An {@link Experiment} that has been {@link Experiment#participate(OnParticipationSuccess, OnParticipationFailure)}'ed
- * in. Waiting to be {@link #convert(OnConvertSuccess, OnConvertFailure)}'ed.
+ * An {@link Experiment} that has been {@link Experiment#participate()}'ed
+ * in. Waiting to be {@link #convert()}'ed.
  */
 public class ParticipatingExperiment {
 
@@ -31,12 +31,12 @@ public class ParticipatingExperiment {
      * Converts this experiment by notifying the Sixpack server that the user has completed the
      * expected action
      *
-     * @param success success callback for when the server has acknowledged that the user converted
-     * @param failure failure callback for when there was an issue reporting the user's conversion
-     *                to the Sixpack server
+     * This call makes blocking network requests.
+     *
+     * @throws ConversionError if the client fails to convert
      */
-    public void convert(OnConvertSuccess success, OnConvertFailure failure) {
-        sixpack.convert(this, success, failure);
+    public ConvertedExperiment convert() {
+        return sixpack.convert(this);
     }
 
     @Override

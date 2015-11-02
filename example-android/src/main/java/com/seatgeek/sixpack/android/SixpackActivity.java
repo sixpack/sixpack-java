@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.seatgeek.sixpack.Alternative;
+import com.seatgeek.sixpack.ConversionError;
 import com.seatgeek.sixpack.ConvertedExperiment;
 import com.seatgeek.sixpack.Experiment;
 import com.seatgeek.sixpack.OnConvertFailure;
@@ -36,46 +37,29 @@ public class SixpackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sixpack);
         ButterKnife.inject(this);
 
-        buttonColor.participate(
-                new OnParticipationSuccess() {
-                    @Override public void onParticipation(final ParticipatingExperiment experiment) {
-                        if (SixpackModule.BUTTON_COLOR_RED.equals(experiment.selectedAlternative.name)) {
-                            colorfulButton.setBackgroundColor(Color.RED);
-                        } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(experiment.selectedAlternative.name)) {
-                            colorfulButton.setBackgroundColor(Color.BLUE);
-                        }
+        final ParticipatingExperiment participatingExperiment = buttonColor.participate();
 
-                        colorfulButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                v.setOnClickListener(null);
+        if (SixpackModule.BUTTON_COLOR_RED.equals(participatingExperiment.selectedAlternative.name)) {
+            colorfulButton.setBackgroundColor(Color.RED);
+        } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(participatingExperiment.selectedAlternative.name)) {
+            colorfulButton.setBackgroundColor(Color.BLUE);
+        }
 
-                                experiment.convert(
-                                        new OnConvertSuccess() {
-                                            @Override
-                                            public void onConverted(ConvertedExperiment convertedExperiment) {
-                                                Toast.makeText(SixpackActivity.this, "Converted!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        },
-                                        new OnConvertFailure() {
-                                            @Override
-                                            public void onConvertFailure(ParticipatingExperiment experiment, Throwable error) {
-                                                // uhhhh, retry?
-                                            }
-                                        }
-                                );
-                            }
-                        });
+        colorfulButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setOnClickListener(null);
 
-                        colorfulButton.setVisibility(View.VISIBLE);
-                    }
-                },
-                new OnParticipationFailure() {
-                    @Override public void onParticipationFailed(Experiment experiment, Throwable error) {
-                        colorfulButton.setBackgroundColor(Color.RED);
-                        colorfulButton.setVisibility(View.VISIBLE);
-                    }
+                try {
+                    participatingExperiment.convert();
+
+                    Toast.makeText(SixpackActivity.this, "Converted!", Toast.LENGTH_SHORT).show();
+                } catch (ConversionError error) {
+                    Toast.makeText(SixpackActivity.this, "Nope!", Toast.LENGTH_SHORT).show();
                 }
-        );
+            }
+        });
+
+        colorfulButton.setVisibility(View.VISIBLE);
     }
 }
