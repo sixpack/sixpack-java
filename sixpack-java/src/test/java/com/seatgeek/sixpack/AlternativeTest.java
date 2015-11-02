@@ -17,6 +17,11 @@ public class AlternativeTest {
         new Alternative(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadName() {
+        new Alternative("bad.name");
+    }
+
     @Test
     public void testGetName() {
         String name = "test-name";

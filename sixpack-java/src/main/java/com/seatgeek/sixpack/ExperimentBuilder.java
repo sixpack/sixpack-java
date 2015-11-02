@@ -44,6 +44,14 @@ public class ExperimentBuilder {
      * @return this {@link ExperimentBuilder} to allow method chaining
      */
     public ExperimentBuilder withName(String name) {
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Experiment name cannot be empty or null!");
+        }
+
+        if (!Sixpack.NAME_PATTERN.matcher(name).matches()) {
+            throw new IllegalArgumentException("Experiment name must match regex: " + Sixpack.NAME_REGEX);
+        }
+
         this.name = name;
         return this;
     }

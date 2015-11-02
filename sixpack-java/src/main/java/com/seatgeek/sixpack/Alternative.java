@@ -9,6 +9,10 @@ public class Alternative {
             throw new IllegalArgumentException("Alternative name cannot be empty or null!");
         }
 
+        if (!Sixpack.NAME_PATTERN.matcher(name).matches()) {
+            throw new IllegalArgumentException("Alternative name must match regex: " + Sixpack.NAME_REGEX);
+        }
+
         this.name = name;
     }
 
