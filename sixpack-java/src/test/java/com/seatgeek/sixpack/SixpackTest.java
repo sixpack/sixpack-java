@@ -1,5 +1,6 @@
 package com.seatgeek.sixpack;
 
+import com.google.common.collect.Sets;
 import com.seatgeek.sixpack.log.LogLevel;
 import com.seatgeek.sixpack.response.AlternativeName;
 import com.seatgeek.sixpack.response.ConvertResponse;
@@ -12,6 +13,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import retrofit.*;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
@@ -86,209 +88,75 @@ public class SixpackTest {
 
     @Test
     public void testParticipateInSuccess() {
-        OnParticipationSuccess mockSuccess = mock(OnParticipationSuccess.class);
+        ParticipateResponse response = new ParticipateResponse();
+        AlternativeName name = new AlternativeName();
+        name.name = "green";
+        response.alternative = name;
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[4];
-
-                ParticipateResponse response = new ParticipateResponse();
-                AlternativeName name = new AlternativeName();
-                name.name = "green";
-                response.alternative = name;
-                cb.success(response, null);
-                return null;
-            }
-        }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble()))
+                .thenReturn(response);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        sixpack.participateIn(experiment, mockSuccess, null);
+        ParticipatingExperiment participatingExperiment = sixpack.participate(experiment);
 
-        verify(mockSuccess).onParticipation(new ParticipatingExperiment(sixpack, experiment, new Alternative("green")));
+        assertEquals(new ParticipatingExperiment(sixpack, experiment, new Alternative("green")), participatingExperiment);
     }
 
     @Test
-    public void testParticipateInSuccessNullCallbackDoesntThrow() {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[4];
+    public void testNetworkFailureReturnsControl() {
+        ParticipateResponse response = new ParticipateResponse();
+        AlternativeName name = new AlternativeName();
+        name.name = "green";
+        response.alternative = name;
 
-                ParticipateResponse response = new ParticipateResponse();
-                AlternativeName name = new AlternativeName();
-                name.name = "green";
-                response.alternative = name;
-                cb.success(response, null);
-                return null;
-            }
-        }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble()))
+                .thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
 
         Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
-        sixpack.participateIn(experiment, null, null);
-    }
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
 
-    @Test
-    public void testParticipateInFailure() {
-        OnParticipationFailure mockFailure = mock(OnParticipationFailure.class);
-        final RetrofitError error = RetrofitError.unexpectedError(Sixpack.DEFAULT_URL, new RuntimeException());
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[4];
+        ParticipatingExperiment participatingExperiment = sixpack.participate(experiment);
 
-                cb.failure(error);
-                return null;
-            }
-        }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
-
-        Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
-
-        sixpack.participateIn(experiment, null, mockFailure);
-
-        verify(mockFailure).onParticipationFailed(experiment, error);
-    }
-
-    @Test
-    public void testParticipateInFailureNullCallbackDoesntThrow() {
-        final RetrofitError error = RetrofitError.unexpectedError(Sixpack.DEFAULT_URL, new RuntimeException());
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[4];
-
-                cb.failure(error);
-                return null;
-            }
-        }).when(mockApi).participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(),  Matchers.<Callback>anyObject());
-
-        Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
-
-        sixpack.participateIn(experiment, null, null);
+        assertEquals(new ParticipatingExperiment(sixpack, experiment, greenAlternative), participatingExperiment);
     }
 
     @Test
     public void testConvertSuccess() {
-        OnConvertSuccess mockSuccess = mock(OnConvertSuccess.class);
         Alternative selected = new Alternative("green");
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[1];
-
-                ConvertResponse response = new ConvertResponse();
-                cb.success(response, null);
-                return null;
-            }
-        }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(new ConvertResponse());
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
         ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
-        sixpack.convert(participating, mockSuccess, null);
+        ConvertedExperiment convert = sixpack.convert(participating);
 
-        verify(mockSuccess).onConverted(new ConvertedExperiment(sixpack, experiment));
+        assertEquals(new ConvertedExperiment(sixpack, experiment), convert);
     }
 
-    @Test
-    public void testConvertSuccessNullCallbackDoesntThrow() {
-        Alternative selected = new Alternative("green");
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[1];
-
-                ConvertResponse response = new ConvertResponse();
-                cb.success(response, null);
-                return null;
-            }
-        }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
-
-        Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
-
-        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
-
-        sixpack.convert(participating, null, null);
-    }
-
-    @Test
+    @Test(expected = ConversionError.class)
     public void testConvertFailure() {
-        OnConvertFailure mockFailure = mock(OnConvertFailure.class);
-        final RetrofitError error = RetrofitError.unexpectedError(Sixpack.DEFAULT_URL, new RuntimeException());
-
         Alternative selected = new Alternative("green");
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[1];
-
-                cb.failure(error);
-                return null;
-            }
-        }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
         ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
-        sixpack.convert(participating, null, mockFailure);
-
-        verify(mockFailure).onConvertFailure(participating, error);
-    }
-
-    @Test
-    public void testConvertFailureNullCallbackDoesntThrow() {
-        final RetrofitError error = RetrofitError.unexpectedError(Sixpack.DEFAULT_URL, new RuntimeException());
-
-        Alternative selected = new Alternative("green");
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Callback cb = (Callback) invocation.getArguments()[1];
-
-                cb.failure(error);
-                return null;
-            }
-        }).when(mockApi).convert(Matchers.<Experiment>anyObject(), Matchers.<Callback>anyObject());
-
-        Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
-
-        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
-
-        sixpack.convert(participating, null, null);
-    }
-
-    @Test
-    public void testGetParticipateCallback() {
-        Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
-
-        assertNotNull(sixpack.getParticipateCallback(experiment, null, null));
-    }
-
-    @Test
-    public void testGetConvertCallback() {
-        Sixpack sixpack = new Sixpack(mockApi);
-        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
-
-        assertNotNull(sixpack.getConvertCallback(new ParticipatingExperiment(sixpack, experiment, new Alternative("test")), null, null));
+        sixpack.convert(participating);
     }
 
     @Test

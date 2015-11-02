@@ -4,7 +4,7 @@ import java.util.Set;
 
 /**
  * An Experiment that has been created but has not yet been sent to the Sixpack server.
- * To actually start this Experiment, use the {@link #participate(OnParticipationSuccess, OnParticipationFailure)}
+ * To actually start this Experiment, use the {@link #participate()}
  * method.
  */
 public class Experiment {
@@ -46,12 +46,13 @@ public class Experiment {
      * Starts this {@link Experiment} by sending the experiment data to the Sixpack server and returning
      * a {@link ParticipatingExperiment}.
      *
-     * @param callback success callback for when this client has successfully started participation
-     *                 in this Experiment
-     * @param failureCallback (optional) callback for if communication with the Sixpack server fails
+     * If an exception occurs trying to participate in the experiment, the control alternative will
+     * be selected and returned.
+     *
+     * This call makes blocking network requests.
      */
-    public void participate(OnParticipationSuccess callback, OnParticipationFailure failureCallback) {
-        sixpack.participateIn(this, callback, failureCallback);
+    public ParticipatingExperiment participate() {
+        return sixpack.participate(this);
     }
 
     /**
@@ -64,5 +65,9 @@ public class Experiment {
     @Override
     public String toString() {
         return name;
+    }
+
+    public Alternative getControlAlternative() {
+        return alternatives.iterator().next();
     }
 }

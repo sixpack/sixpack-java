@@ -73,27 +73,12 @@ It is recommended that you maintain a singleton instance of `Sixpack` with the D
 0. Participate in that new `Experiment` by calling `participate()`
 
     ```java
-        colorsExperiment.participate(
-                (participatingExperiment) -> {
-                    // success!
-                    this.participatingExperiment = participatingExperiment;
-                },
-                (experiment, error) -> {
-                    // failure, check network connection and try to participate again or fallback to a default
-                }
-        );
+        ParticipatingExperiment participatingExperiment = colorsExperiment.participate();
     ```
 0. When the user performs the action measured in the test, convert the experiment
 
     ```java
-        participatingExperiment.convert(
-                (convertedExperiment) -> {
-                    // success!
-                },
-                (experiment, error) -> {
-                    // failure, check network connection and try to convert again
-                }
-        );
+        participatingExperiment.convert();
     ```
 
 ### Contributing

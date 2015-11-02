@@ -17,10 +17,6 @@ public class ParticipatingExperimentTest {
 
     @Mock Alternative mockAlternative;
 
-    @Mock OnConvertSuccess mockSuccess;
-
-    @Mock OnConvertFailure mockFailure;
-
     @Before
     public void setUp() {
         initMocks(this);
@@ -57,9 +53,9 @@ public class ParticipatingExperimentTest {
     public void testConvertCallsSixpackConvert() {
         ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, mockAlternative);
 
-        participatingExperiment.convert(mockSuccess, mockFailure);
+        participatingExperiment.convert();
 
-        verify(mockSixpack).convert(participatingExperiment, mockSuccess, mockFailure);
+        verify(mockSixpack).convert(participatingExperiment);
     }
 
     @Test

@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -14,10 +13,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ExperimentTest {
     @Mock Sixpack mockSixpack;
-
-    @Mock OnParticipationSuccess mockSuccess;
-
-    @Mock OnParticipationFailure mockFailure;
 
     @Before
     public void setUp() {
@@ -202,8 +197,8 @@ public class ExperimentTest {
                 .withAlternatives(test)
                 .build();
 
-        experiment.participate(mockSuccess, mockFailure);
+        experiment.participate();
 
-        verify(mockSixpack).participateIn(experiment, mockSuccess, mockFailure);
+        verify(mockSixpack).participate(experiment);
     }
 }
