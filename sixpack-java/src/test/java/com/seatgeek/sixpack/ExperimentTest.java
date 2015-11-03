@@ -95,6 +95,21 @@ public class ExperimentTest {
         assertEquals(setOfAlternatives, experimentB.alternatives);
     }
 
+    @Test
+    public void testGetControlAlternative() {
+        String name = "test-experiment";
+        Alternative one = new Alternative("one");
+        Alternative two = new Alternative("two");
+        Alternative three = new Alternative("three");
+
+        Experiment experiment = new ExperimentBuilder(mockSixpack)
+                .withName(name)
+                .withAlternatives(one, two, three)
+                .build();
+
+        assertEquals(one, experiment.getControlAlternative());
+    }
+
     @Test(expected = NoAlternativesException.class)
     public void testNoAlternativesThrows() {
         String name = "test-experiment";
@@ -200,5 +215,20 @@ public class ExperimentTest {
         experiment.participate();
 
         verify(mockSixpack).participate(experiment);
+    }
+
+    @Test
+    public void testPrefetchCallsSixpackPrefetch() {
+        String name = "test-experiment";
+        Alternative test = new Alternative("test");
+
+        Experiment experiment = new ExperimentBuilder(mockSixpack)
+                .withName(name)
+                .withAlternatives(test)
+                .build();
+
+        experiment.prefetch();
+
+        verify(mockSixpack).prefetch(experiment);
     }
 }

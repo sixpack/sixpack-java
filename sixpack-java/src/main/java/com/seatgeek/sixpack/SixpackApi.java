@@ -15,7 +15,8 @@ public interface SixpackApi {
             @Query("experiment") Experiment experiment,
             @Query("alternatives") List<Alternative> alternatives,
             @Query("force") Alternative forcedAlternative,
-            @Query("traffic_fraction") Double trafficFraction
+            @Query("traffic_fraction") Double trafficFraction,
+            @Query("prefetch") Boolean prefetch
     );
 
     @GET("/convert")

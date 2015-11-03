@@ -23,33 +23,6 @@ public class ParticipatingExperimentTest {
     }
 
     @Test
-    public void testGetSixpack() throws Exception {
-        ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, mockAlternative);
-
-        Sixpack sixpack = participatingExperiment.sixpack;
-
-        assertEquals(sixpack, mockSixpack);
-    }
-
-    @Test
-    public void testGetBaseExperiment() throws Exception {
-        ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, mockAlternative);
-
-        Experiment baseExperiment = participatingExperiment.baseExperiment;
-
-        assertEquals(baseExperiment, mockExperiment);
-    }
-
-    @Test
-    public void testGetAlternative() {
-        Alternative testAlternative = new Alternative("green");
-
-        ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, testAlternative);
-
-        assertEquals(participatingExperiment.selectedAlternative, testAlternative);
-    }
-
-    @Test
     public void testConvertCallsSixpackConvert() {
         ParticipatingExperiment participatingExperiment = new ParticipatingExperiment(mockSixpack, mockExperiment, mockAlternative);
 
