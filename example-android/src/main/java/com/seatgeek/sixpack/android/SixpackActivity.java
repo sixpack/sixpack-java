@@ -7,14 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.seatgeek.sixpack.Alternative;
 import com.seatgeek.sixpack.ConversionError;
-import com.seatgeek.sixpack.ConvertedExperiment;
 import com.seatgeek.sixpack.Experiment;
-import com.seatgeek.sixpack.OnConvertFailure;
-import com.seatgeek.sixpack.OnConvertSuccess;
-import com.seatgeek.sixpack.OnParticipationFailure;
-import com.seatgeek.sixpack.OnParticipationSuccess;
 import com.seatgeek.sixpack.ParticipatingExperiment;
 
 import javax.inject.Inject;
