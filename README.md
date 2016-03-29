@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.seatgeek:sixpack:0.3-SNAPSHOT'
+    compile 'com.seatgeek:sixpack-java:0.3-SNAPSHOT'
 }
 ```
 
@@ -23,7 +23,7 @@ or, if you're a maven user:
 ```xml
 <dependency>
   <groupId>com.seatgeek</groupId>
-  <artifactId>sixpack</artifactId>
+  <artifactId>sixpack-java</artifactId>
   <version>0.3-SNAPSHOT</version>
 </dependency>
 ```
