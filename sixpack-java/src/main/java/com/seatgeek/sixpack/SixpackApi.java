@@ -2,16 +2,16 @@ package com.seatgeek.sixpack;
 
 import com.seatgeek.sixpack.response.ConvertResponse;
 import com.seatgeek.sixpack.response.ParticipateResponse;
-import retrofit.Callback;
-import retrofit.http.GET;
-import retrofit.http.Query;
-
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface SixpackApi {
 
     @GET("/participate")
-    ParticipateResponse participate(
+    Call<ParticipateResponse> participate(
             @Query("experiment") Experiment experiment,
             @Query("alternatives") List<Alternative> alternatives,
             @Query("force") Alternative forcedAlternative,
@@ -20,7 +20,7 @@ public interface SixpackApi {
     );
 
     @GET("/convert")
-    ConvertResponse convert(
+    Call<ConvertResponse> convert(
             @Query("experiment") Experiment experiment
     );
 }

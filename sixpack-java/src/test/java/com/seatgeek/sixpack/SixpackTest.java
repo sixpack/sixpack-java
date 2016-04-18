@@ -1,6 +1,5 @@
 package com.seatgeek.sixpack;
 
-import com.google.common.collect.Sets;
 import com.seatgeek.sixpack.log.LogLevel;
 import com.seatgeek.sixpack.response.AlternativeName;
 import com.seatgeek.sixpack.response.ConvertResponse;
@@ -9,19 +8,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import retrofit.*;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import retrofit2.Call;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SixpackTest {
+
     @Mock SixpackApi mockApi;
 
     String clientId;
@@ -87,14 +96,17 @@ public class SixpackTest {
     }
 
     @Test
-    public void testParticipateInSuccess() {
+    public void testParticipateInSuccess() throws IOException {
         ParticipateResponse response = new ParticipateResponse();
         AlternativeName name = new AlternativeName();
         name.name = "red";
         response.alternative = name;
 
+        Call<ParticipateResponse> call = mock(Call.class);
+        when(call.execute()).thenReturn(retrofit2.Response.success(response));
+
         when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
-                .thenReturn(response);
+                .thenReturn(call);
 
         Sixpack sixpack = new Sixpack(mockApi);
 
@@ -111,9 +123,11 @@ public class SixpackTest {
     }
 
     @Test
-    public void testParticipateNetworkFailureReturnsControl() {
+    public void testParticipateNetworkFailureReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException());
         when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
-                .thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
+                .thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
 
@@ -131,14 +145,39 @@ public class SixpackTest {
     }
 
     @Test
-    public void testPrefetchSuccess() {
+    public void testParticipateFailedResponseReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(retrofit2.Response.<ParticipateResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
+                .thenReturn(mockCall);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
+
+        ParticipatingExperiment participatingExperiment = sixpack.participate(experiment);
+
+        assertEquals(new ParticipatingExperiment(sixpack, experiment, greenAlternative), participatingExperiment);
+    }
+
+    @Test
+    public void testPrefetchSuccess() throws IOException {
         ParticipateResponse response = new ParticipateResponse();
         AlternativeName name = new AlternativeName();
         name.name = "red";
         response.alternative = name;
 
+        Call<ParticipateResponse> call = mock(Call.class);
+        when(call.execute()).thenReturn(retrofit2.Response.success(response));
+
         when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
-                .thenReturn(response);
+                .thenReturn(call);
 
         Sixpack sixpack = new Sixpack(mockApi);
 
@@ -156,9 +195,11 @@ public class SixpackTest {
     }
 
     @Test
-    public void testPrefetchNetworkFailureReturnsControl() {
+    public void testPrefetchNetworkFailureReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException());
         when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
-                .thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
+                .thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
 
@@ -176,10 +217,36 @@ public class SixpackTest {
     }
 
     @Test
-    public void testConvertSuccess() {
+    public void testPrefetchFailedResponseReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(retrofit2.Response.<ParticipateResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
+                .thenReturn(mockCall);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
+
+        PrefetchedExperiment prefetched = sixpack.prefetch(experiment);
+
+        assertEquals(new PrefetchedExperiment(sixpack, experiment, greenAlternative), prefetched);
+    }
+
+
+    @Test
+    public void testConvertSuccess() throws IOException {
         Alternative selected = new Alternative("green");
 
-        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(new ConvertResponse());
+        Call<ConvertResponse> call = mock(Call.class);
+        when(call.execute()).thenReturn(retrofit2.Response.success(new ConvertResponse()));
+
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(call);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
@@ -192,10 +259,28 @@ public class SixpackTest {
     }
 
     @Test(expected = ConversionError.class)
-    public void testConvertFailure() {
+    public void testConvertNetworkFailure() throws IOException {
         Alternative selected = new Alternative("green");
 
-        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenThrow(RetrofitError.networkError("http://sixpack.seatgeek.com", new IOException()));
+        Call<ConvertResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(retrofit2.Response.<ConvertResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(mockCall);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
+
+        sixpack.convert(participating);
+    }
+
+    @Test(expected = ConversionError.class)
+    public void testConvertFailedResponse() throws IOException {
+        Alternative selected = new Alternative("green");
+
+        Call<ConvertResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException());
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
@@ -212,41 +297,48 @@ public class SixpackTest {
 
     @Test
     public void testGetRetrofitLogLevel() {
-        assertEquals(RestAdapter.LogLevel.FULL, Sixpack.getRetrofitLogLevel(LogLevel.VERBOSE));
-        assertEquals(RestAdapter.LogLevel.HEADERS_AND_ARGS, Sixpack.getRetrofitLogLevel(LogLevel.DEBUG));
-        assertEquals(RestAdapter.LogLevel.NONE, Sixpack.getRetrofitLogLevel(LogLevel.NONE));
-        assertEquals(RestAdapter.LogLevel.NONE, Sixpack.getRetrofitLogLevel(null));
+        assertEquals(HttpLoggingInterceptor.Level.BODY, Sixpack.getRetrofitLogLevel(LogLevel.VERBOSE));
+        assertEquals(HttpLoggingInterceptor.Level.HEADERS, Sixpack.getRetrofitLogLevel(LogLevel.DEBUG));
+        assertEquals(HttpLoggingInterceptor.Level.NONE, Sixpack.getRetrofitLogLevel(LogLevel.NONE));
+        assertEquals(HttpLoggingInterceptor.Level.NONE, Sixpack.getRetrofitLogLevel(null));
     }
 
     @Test
-    public void testGetClientIdInterceptor() {
+    public void testGetClientIdInterceptor() throws IOException {
         String clientId = "test-client-id";
-        RequestInterceptor clientIdInterceptor = Sixpack.getClientIdInterceptor(clientId);
 
+        MockWebServer webServer = new MockWebServer();
+        webServer.enqueue(new MockResponse());
+        webServer.start();
+        HttpUrl url = webServer.url("/");
+
+        Interceptor clientIdInterceptor = Sixpack.getClientIdInterceptor(clientId);
         assertNotNull(clientIdInterceptor);
 
-        RequestInterceptor.RequestFacade mockRequest = mock(RequestInterceptor.RequestFacade.class);
-        clientIdInterceptor.intercept(mockRequest);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(clientIdInterceptor)
+                .build();
 
-        verify(mockRequest).addQueryParam("client_id", clientId);
+        Response response = client.newCall(new Request.Builder().url(url).build()).execute();
+
+        assertEquals(clientId, response.request().url().queryParameter("client_id"));
     }
+
 
     @Test
     public void testGetSixpackEndpoint() {
-        String url = "http://example.com/sixpack";
-        Endpoint sixpackEndpoint = Sixpack.getSixpackEndpoint(url);
+        HttpUrl url = HttpUrl.parse("http://example.com/sixpack");
+        HttpUrl sixpackEndpoint = Sixpack.getSixpackEndpoint(url);
 
         assertNotNull(sixpackEndpoint);
-        assertEquals(sixpackEndpoint.getName(), "SixPack");
-        assertEquals(sixpackEndpoint.getUrl(), url);
+        assertEquals(sixpackEndpoint.toString(), url.toString());
     }
 
     @Test
     public void testGetSixpackEndpointNullUrl() {
-        Endpoint sixpackEndpoint = Sixpack.getSixpackEndpoint(null);
+        HttpUrl sixpackEndpoint = Sixpack.getSixpackEndpoint(null);
 
         assertNotNull(sixpackEndpoint);
-        assertEquals(sixpackEndpoint.getName(), "SixPack");
-        assertEquals(sixpackEndpoint.getUrl(), Sixpack.DEFAULT_URL);
+        assertEquals(sixpackEndpoint.toString(), Sixpack.DEFAULT_URL.toString());
     }
 }

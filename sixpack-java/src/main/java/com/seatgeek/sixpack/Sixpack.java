@@ -1,23 +1,22 @@
 package com.seatgeek.sixpack;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.seatgeek.sixpack.log.HttpLoggingInterceptorLoggerAdapter;
 import com.seatgeek.sixpack.log.LogLevel;
 import com.seatgeek.sixpack.log.Logger;
 import com.seatgeek.sixpack.log.PlatformLogger;
 import com.seatgeek.sixpack.response.ConvertResponse;
 import com.seatgeek.sixpack.response.ParticipateResponse;
 
-import retrofit.Callback;
-import retrofit.Endpoint;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Client;
-import retrofit.client.OkClient;
-import retrofit.client.Response;
-import retrofit.converter.GsonConverter;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -35,7 +34,7 @@ public class Sixpack {
     /**
      * Default url for a {@link Sixpack} instance hosted with default configuration on the local machine
      */
-    public static final String DEFAULT_URL = "http://localhost:5000";
+    public static final HttpUrl DEFAULT_URL = HttpUrl.parse("http://localhost:5000/");
 
     public static final String NAME_REGEX = "^[a-z0-9][a-z0-9\\-_ ]*$";
 
@@ -46,7 +45,7 @@ public class Sixpack {
      */
     public static final LogLevel DEFAULT_LOG_LEVEL = LogLevel.NONE;
 
-    private static final String SIXPACK_LOG_TAG = "Sixpack";
+    public static final String SIXPACK_LOG_TAG = "Sixpack";
 
     private final SixpackApi api;
 
@@ -57,7 +56,7 @@ public class Sixpack {
     private Logger logger = PlatformLogger.INSTANCE.getLogger();
 
     /** not exposed, use {@link SixpackBuilder} */
-    Sixpack(final String sixpackUrl, final String clientId, final Client client) {
+    Sixpack(final HttpUrl sixpackUrl, final String clientId, final OkHttpClient client) {
         this.clientId = clientId;
         this.api = getDefaultApi(sixpackUrl, clientId, logLevel, client);
     }
@@ -130,18 +129,26 @@ public class Sixpack {
         logParticipate(experiment);
 
         try {
-            ParticipateResponse response = api.participate(experiment,
+            Response<ParticipateResponse> response = api.participate(experiment,
                     new ArrayList<>(experiment.alternatives),
                     experiment.forcedChoice,
                     experiment.trafficFraction,
                     null
-            );
+            ).execute();
 
-            return new ParticipatingExperiment(Sixpack.this, experiment, response.getSelectedAlternative());
-        } catch (RuntimeException e) {
+            if (response.isSuccessful()) {
+                return new ParticipatingExperiment(Sixpack.this, experiment, response.body().getSelectedAlternative());
+            } else {
+                return getControlParticipation(experiment);
+            }
+        } catch (RuntimeException | IOException e) {
             logException(experiment, e);
-            return new ParticipatingExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
+            return getControlParticipation(experiment);
         }
+    }
+
+    private ParticipatingExperiment getControlParticipation(Experiment experiment) {
+        return new ParticipatingExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
     }
 
     /**
@@ -151,18 +158,26 @@ public class Sixpack {
         logParticipate(experiment);
 
         try {
-            ParticipateResponse response = api.participate(experiment,
+            Response<ParticipateResponse> response = api.participate(experiment,
                     new ArrayList<>(experiment.alternatives),
                     experiment.forcedChoice,
                     experiment.trafficFraction,
                     true
-            );
+            ).execute();
 
-            return new PrefetchedExperiment(Sixpack.this, experiment, response.getSelectedAlternative());
-        } catch (RuntimeException e) {
+            if (response.isSuccessful()) {
+                return new PrefetchedExperiment(Sixpack.this, experiment, response.body().getSelectedAlternative());
+            } else {
+                return getControlPrefetch(experiment);
+            }
+        } catch (RuntimeException | IOException e) {
             logException(experiment, e);
-            return new PrefetchedExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
+            return getControlPrefetch(experiment);
         }
+    }
+
+    private PrefetchedExperiment getControlPrefetch(Experiment experiment) {
+        return new PrefetchedExperiment(Sixpack.this, experiment, experiment.getControlAlternative());
     }
 
     /**
@@ -172,10 +187,15 @@ public class Sixpack {
         logConvert(experiment);
 
         try {
-            ConvertResponse x = api.convert(experiment.baseExperiment);
+            Response<ConvertResponse> response = api.convert(experiment.baseExperiment).execute();
 
-            return new ConvertedExperiment(Sixpack.this, experiment.baseExperiment);
-        } catch (RuntimeException e) {
+            if (response.isSuccessful()) {
+                return new ConvertedExperiment(Sixpack.this, experiment.baseExperiment);
+            } else {
+                logFailedConversion(experiment.baseExperiment, response.code());
+                throw new ConversionError(null, experiment.baseExperiment);
+            }
+        } catch (RuntimeException | IOException e) {
             logException(experiment.baseExperiment, e);
             throw new ConversionError(e, experiment.baseExperiment);
         }
@@ -184,76 +204,76 @@ public class Sixpack {
     /**
      * Internal method for building the {@link SixpackApi} Rest Adapter and returning the Api instance
      */
-    static SixpackApi getDefaultApi(final String sixpackUrl, final String clientId, final LogLevel logLevel, final Client client) {
-        Endpoint sixpackEndpoint = getSixpackEndpoint(sixpackUrl);
+    static SixpackApi getDefaultApi(final HttpUrl sixpackUrl, final String clientId, final LogLevel logLevel, final OkHttpClient client) {
+        HttpUrl sixpackEndpoint = getSixpackEndpoint(sixpackUrl);
 
-        RequestInterceptor clientIdInterceptor = getClientIdInterceptor(clientId);
-
-        RestAdapter.LogLevel retrofitLogLevel = getRetrofitLogLevel(logLevel);
-
-        final Client finalClient;
+        final OkHttpClient finalClient;
         if (client == null) {
             finalClient = getDefaultOkHttpClient();
         } else {
             finalClient = client;
         }
 
-        GsonConverter gsonConverter = getDefaultGsonConverter();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptorLoggerAdapter(PlatformLogger.INSTANCE.getLogger()))
+                .setLevel(getRetrofitLogLevel(logLevel));
 
-        RestAdapter adapter = new RestAdapter.Builder()
-                .setEndpoint(sixpackEndpoint)
-                .setClient(finalClient)
-                .setConverter(gsonConverter)
-                .setRequestInterceptor(clientIdInterceptor)
-                .setLogLevel(retrofitLogLevel)
+        Interceptor clientIdInterceptor = getClientIdInterceptor(clientId);
+
+        OkHttpClient interceptedClient = finalClient.newBuilder()
+                .addInterceptor(clientIdInterceptor)
+                .addInterceptor(loggingInterceptor)
+                .build();
+
+        GsonConverterFactory gsonConverter = getDefaultGsonConverter();
+
+        Retrofit adapter = new Retrofit.Builder()
+                .baseUrl(sixpackEndpoint)
+                .client(interceptedClient)
+                .addConverterFactory(gsonConverter)
                 .build();
 
         return adapter.create(SixpackApi.class);
     }
 
-    private static GsonConverter getDefaultGsonConverter() {
-        Gson gson = new GsonBuilder().create();
-
-        return new GsonConverter(gson);
+    private static GsonConverterFactory getDefaultGsonConverter() {
+        return GsonConverterFactory.create();
     }
 
-    static Client getDefaultOkHttpClient() {
-        return new OkClient();
+    static OkHttpClient getDefaultOkHttpClient() {
+        return new OkHttpClient();
     }
 
     /**
      * Internal utility for converting between the retrofit log level and our internal log level
      */
-    static RestAdapter.LogLevel getRetrofitLogLevel(final LogLevel logLevel) {
+    static HttpLoggingInterceptor.Level getRetrofitLogLevel(final LogLevel logLevel) {
         if (logLevel == null) {
-            return RestAdapter.LogLevel.NONE;
+            return HttpLoggingInterceptor.Level.NONE;
         } else if (logLevel == LogLevel.VERBOSE) {
-            return RestAdapter.LogLevel.FULL;
+            return HttpLoggingInterceptor.Level.BODY;
         } else if (logLevel == LogLevel.DEBUG) {
-            return RestAdapter.LogLevel.HEADERS_AND_ARGS;
+            return HttpLoggingInterceptor.Level.HEADERS;
         } else {
-            return RestAdapter.LogLevel.NONE;
+            return HttpLoggingInterceptor.Level.NONE;
         }
     }
 
-    static RequestInterceptor getClientIdInterceptor(final String clientId) {
-        return new RequestInterceptor() {
-            public void intercept(final RequestFacade request) {
-                request.addQueryParam("client_id", clientId);
+    static Interceptor getClientIdInterceptor(final String clientId) {
+        return new Interceptor() {
+
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException {
+                final Request request = chain.request();
+                final Request.Builder builder = request.newBuilder()
+                        .url(request.url().newBuilder().addQueryParameter("client_id", clientId).build());
+
+                return chain.proceed(builder.build());
             }
         };
     }
 
-    static Endpoint getSixpackEndpoint(final String sixpackUrl) {
-        return new Endpoint() {
-            public String getUrl() {
-                return sixpackUrl != null ? sixpackUrl : DEFAULT_URL;
-            }
-
-            public String getName() {
-                return "SixPack";
-            }
-        };
+    static HttpUrl getSixpackEndpoint(final HttpUrl sixpackUrl) {
+        return sixpackUrl != null ? sixpackUrl : DEFAULT_URL;
     }
 
     /* logging */
@@ -286,7 +306,7 @@ public class Sixpack {
         }
     }
 
-    void logNewInstanceCreation(final String sixpackUrl, final String clientId) {
+    void logNewInstanceCreation(final HttpUrl sixpackUrl, final String clientId) {
         if (logLevel.isAtLeastVerbose()) {
             logger.log(
                     SIXPACK_LOG_TAG,
@@ -328,7 +348,7 @@ public class Sixpack {
         }
     }
 
-    void logException(final Experiment experiment, final RuntimeException e) {
+    void logException(final Experiment experiment, final Exception e) {
         if (logLevel.isAtLeastVerbose()) {
             logger.loge(
                     SIXPACK_LOG_TAG,
@@ -340,6 +360,20 @@ public class Sixpack {
             );
         } else if (logLevel.isAtLeastDebug()) {
             logger.loge(SIXPACK_LOG_TAG, String.format("Exception with Experiment: name=%s", experiment.name), e);
+        }
+    }
+
+    private void logFailedConversion(Experiment experiment, int httpResponseCode) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Exception converting Experiment: httpResponseCode=%d, name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            httpResponseCode, experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Exception converting Experiment: httpResponseCode=%d, name=%s", httpResponseCode, experiment.name));
         }
     }
 }

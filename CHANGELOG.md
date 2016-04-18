@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 0.4
+----------------------------
+* Retrofit 2.0 upgrade
+
+Version 0.3
+----------------------------
+* Add support for prefetch API to fetch selected alternatives without participation
+
 Version 0.2
 ----------------------------
 * Switch from async to synchronous API, user of the client will need their own threading

@@ -2,9 +2,9 @@ package com.seatgeek.sixpack;
 
 import com.seatgeek.sixpack.log.LogLevel;
 import com.seatgeek.sixpack.log.Logger;
-import com.seatgeek.sixpack.log.PlatformLogger;
 
-import retrofit.client.Client;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 
 /**
  * Builder for creating a new {@link Sixpack} instance.
@@ -20,10 +20,10 @@ import retrofit.client.Client;
  * ```
  */
 public class SixpackBuilder {
-    private String sixpackUrl;
+    private HttpUrl sixpackUrl;
     private String clientId;
     private LogLevel logLevel;
-    private Client client;
+    private OkHttpClient client;
     private Logger logger;
 
     /**
@@ -32,7 +32,7 @@ public class SixpackBuilder {
      * @param sixpackUrl the server url for the Sixpack server
      * @return this {@link SixpackBuilder} for method chaining
      */
-    public SixpackBuilder setSixpackUrl(String sixpackUrl) {
+    public SixpackBuilder setSixpackUrl(HttpUrl sixpackUrl) {
         this.sixpackUrl = sixpackUrl;
         return this;
     }
@@ -74,13 +74,12 @@ public class SixpackBuilder {
     }
 
     /**
-     * Sets the {@link Client} that Retrofit will use. You can pass in your custom {@link retrofit.client.OkClient}
-     * to provide a shared {@link com.squareup.okhttp.OkHttpClient} with the rest of your app
+     * Sets the {@link okhttp3.OkHttpClient} that Retrofit will use
      *
-     * @param client the {@link Client} that will be used to make requests to the Sixpack server
+     * @param client the {@link okhttp3.OkHttpClient} that will be used to make requests to the Sixpack server
      * @return this {@link SixpackBuilder} for method chaining
      */
-    public SixpackBuilder setHttpClient(Client client) {
+    public SixpackBuilder setHttpClient(OkHttpClient client) {
         this.client = client;
         return this;
     }
@@ -91,7 +90,7 @@ public class SixpackBuilder {
      */
     public Sixpack build() {
         boolean usedDefaultUrl = false;
-        if (sixpackUrl == null || sixpackUrl.length() == 0) {
+        if (sixpackUrl == null) {
             sixpackUrl = Sixpack.DEFAULT_URL;
             usedDefaultUrl = true;
         }
@@ -126,7 +125,7 @@ public class SixpackBuilder {
     }
 
     // package method for testing
-    String getSixpackUrl() {
+    HttpUrl getSixpackUrl() {
         return sixpackUrl;
     }
 }
