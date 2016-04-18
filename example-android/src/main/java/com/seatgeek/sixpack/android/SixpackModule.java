@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.HttpUrl;
 
 @Module(
         injects = {
@@ -25,7 +26,7 @@ public class SixpackModule {
     @Singleton @Provides Sixpack provideSixpack() {
         Sixpack sixpack = new SixpackBuilder()
                 .setClientId(Sixpack.generateRandomClientId())
-                .setSixpackUrl("http://10.0.3.2:5000/") // genymotion host
+                .setSixpackUrl(HttpUrl.parse("http://10.0.3.2:5000/")) // genymotion host
                 .build();
 
         sixpack.setLogLevel(LogLevel.VERBOSE);
