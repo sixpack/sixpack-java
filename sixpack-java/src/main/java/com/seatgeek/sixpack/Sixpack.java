@@ -141,11 +141,8 @@ public class Sixpack {
             } else {
                 return getControlParticipation(experiment);
             }
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             logException(experiment, e);
-            return getControlParticipation(experiment);
-        } catch (IOException ex) {
-            logException(experiment, ex);
             return getControlParticipation(experiment);
         }
     }
@@ -173,11 +170,8 @@ public class Sixpack {
             } else {
                 return getControlPrefetch(experiment);
             }
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             logException(experiment, e);
-            return getControlPrefetch(experiment);
-        } catch (IOException ex) {
-            logException(experiment, ex);
             return getControlPrefetch(experiment);
         }
     }
@@ -193,15 +187,17 @@ public class Sixpack {
         logConvert(experiment);
 
         try {
-            Response<ConvertResponse> x = api.convert(experiment.baseExperiment).execute();
+            Response<ConvertResponse> response = api.convert(experiment.baseExperiment).execute();
 
-            return new ConvertedExperiment(Sixpack.this, experiment.baseExperiment);
-        } catch (RuntimeException e) {
+            if (response.isSuccessful()) {
+                return new ConvertedExperiment(Sixpack.this, experiment.baseExperiment);
+            } else {
+                logFailedConversion(experiment.baseExperiment, response.code());
+                throw new ConversionError(null, experiment.baseExperiment);
+            }
+        } catch (RuntimeException | IOException e) {
             logException(experiment.baseExperiment, e);
             throw new ConversionError(e, experiment.baseExperiment);
-        } catch (IOException ex) {
-            logException(experiment.baseExperiment, ex);
-            throw new ConversionError(ex, experiment.baseExperiment);
         }
     }
 
@@ -364,6 +360,20 @@ public class Sixpack {
             );
         } else if (logLevel.isAtLeastDebug()) {
             logger.loge(SIXPACK_LOG_TAG, String.format("Exception with Experiment: name=%s", experiment.name), e);
+        }
+    }
+
+    private void logFailedConversion(Experiment experiment, int httpResponseCode) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Exception converting Experiment: httpResponseCode=%d, name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            httpResponseCode, experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Exception converting Experiment: httpResponseCode=%d, name=%s", httpResponseCode, experiment.name));
         }
     }
 }

@@ -15,9 +15,11 @@ import java.util.List;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -121,9 +123,33 @@ public class SixpackTest {
     }
 
     @Test
-    public void testParticipateNetworkFailureReturnsControl() {
+    public void testParticipateNetworkFailureReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException());
         when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
-                .thenThrow(new RuntimeException());
+                .thenReturn(mockCall);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
+
+        ParticipatingExperiment participatingExperiment = sixpack.participate(experiment);
+
+        assertEquals(new ParticipatingExperiment(sixpack, experiment, greenAlternative), participatingExperiment);
+    }
+
+    @Test
+    public void testParticipateFailedResponseReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(retrofit2.Response.<ParticipateResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), Matchers.<Boolean>eq(null)))
+                .thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
 
@@ -169,9 +195,11 @@ public class SixpackTest {
     }
 
     @Test
-    public void testPrefetchNetworkFailureReturnsControl() {
+    public void testPrefetchNetworkFailureReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException());
         when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
-                .thenThrow(new RuntimeException());
+                .thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
 
@@ -187,6 +215,29 @@ public class SixpackTest {
 
         assertEquals(new PrefetchedExperiment(sixpack, experiment, greenAlternative), prefetched);
     }
+
+    @Test
+    public void testPrefetchFailedResponseReturnsControl() throws IOException {
+        Call<ParticipateResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(retrofit2.Response.<ParticipateResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
+        when(mockApi.participate(Matchers.<Experiment>anyObject(), Matchers.<List<Alternative>>anyObject(), Matchers.<Alternative>anyObject(), anyDouble(), eq(true)))
+                .thenReturn(mockCall);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+
+        Alternative greenAlternative = new Alternative("green");
+        Alternative redAlternative = new Alternative("red");
+
+        Experiment experiment = new ExperimentBuilder(sixpack)
+                .withName("test-experience")
+                .withAlternatives(greenAlternative, redAlternative)
+                .build();
+
+        PrefetchedExperiment prefetched = sixpack.prefetch(experiment);
+
+        assertEquals(new PrefetchedExperiment(sixpack, experiment, greenAlternative), prefetched);
+    }
+
 
     @Test
     public void testConvertSuccess() throws IOException {
@@ -208,10 +259,28 @@ public class SixpackTest {
     }
 
     @Test(expected = ConversionError.class)
-    public void testConvertFailure() {
+    public void testConvertNetworkFailure() throws IOException {
         Alternative selected = new Alternative("green");
 
-        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenThrow(new RuntimeException());
+        Call<ConvertResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(retrofit2.Response.<ConvertResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(mockCall);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
+
+        sixpack.convert(participating);
+    }
+
+    @Test(expected = ConversionError.class)
+    public void testConvertFailedResponse() throws IOException {
+        Alternative selected = new Alternative("green");
+
+        Call<ConvertResponse> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException());
+        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
