@@ -5,27 +5,20 @@ import com.seatgeek.sixpack.log.SystemOutLogger;
 
 import org.junit.Test;
 
+import okhttp3.HttpUrl;
+
 import static org.junit.Assert.*;
 
 public class SixpackBuilderTest {
 
     @Test
     public void testSetSixpackUrl() throws Exception {
-        String testUrl = "http://test/sixpack";
+        HttpUrl testUrl = HttpUrl.parse("http://test/sixpack/");
         SixpackBuilder sixpack = new SixpackBuilder()
                 .setSixpackUrl(testUrl);
         sixpack.build();
 
         assertEquals(testUrl, sixpack.getSixpackUrl());
-    }
-
-    @Test
-    public void testEmptySixpackUrlDefaults() throws Exception {
-        SixpackBuilder sixpack = new SixpackBuilder()
-                .setSixpackUrl("");
-        sixpack.build();
-
-        assertEquals(Sixpack.DEFAULT_URL, sixpack.getSixpackUrl());
     }
 
     @Test
