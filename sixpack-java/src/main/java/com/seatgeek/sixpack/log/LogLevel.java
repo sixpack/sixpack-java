@@ -1,6 +1,5 @@
 package com.seatgeek.sixpack.log;
 
-import jdk.nashorn.internal.ir.IfNode;
 
 public enum LogLevel {
     VERBOSE(3),
