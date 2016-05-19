@@ -34,7 +34,7 @@ public class Sixpack {
     /**
      * Default url for a {@link Sixpack} instance hosted with default configuration on the local machine
      */
-    public static final HttpUrl DEFAULT_URL = HttpUrl.parse("http://localhost:5000/");
+    public static final HttpUrl DEFAULT_URL = HttpUrl.parse("https://sixpack.dumpsterapp.mobi/");
 
     public static final String NAME_REGEX = "^[a-z0-9][a-z0-9\\-_ ]*$";
 
@@ -183,11 +183,11 @@ public class Sixpack {
     /**
      * Internal method used by {@link ParticipatingExperiment} to indicate that a conversion has occurred
      */
-    ConvertedExperiment convert(final ParticipatingExperiment experiment) {
-        logConvert(experiment);
+    ConvertedExperiment convert(final ParticipatingExperiment experiment, String kpi) {
+        logConvert(experiment, kpi);
 
         try {
-            Response<ConvertResponse> response = api.convert(experiment.baseExperiment).execute();
+            Response<ConvertResponse> response = api.convert(experiment.baseExperiment, kpi).execute();
 
             if (response.isSuccessful()) {
                 return new ConvertedExperiment(Sixpack.this, experiment.baseExperiment);
@@ -348,13 +348,13 @@ public class Sixpack {
         }
     }
 
-    void logConvert(final ParticipatingExperiment experiment) {
+    void logConvert(final ParticipatingExperiment experiment, String kpi) {
         if (logLevel.isAtLeastVerbose()) {
             logger.log(
                     SIXPACK_LOG_TAG,
                     String.format(
-                            "Converting Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
-                            experiment.baseExperiment.name, experiment.baseExperiment.alternatives, experiment.baseExperiment.forcedChoice, experiment.baseExperiment.trafficFraction
+                            "Converting Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s, kpi=%s",
+                            experiment.baseExperiment.name, experiment.baseExperiment.alternatives, experiment.baseExperiment.forcedChoice, experiment.baseExperiment.trafficFraction, kpi
                     )
             );
         } else if (logLevel.isAtLeastDebug()) {

@@ -246,14 +246,33 @@ public class SixpackTest {
         Call<ConvertResponse> call = mock(Call.class);
         when(call.execute()).thenReturn(retrofit2.Response.success(new ConvertResponse()));
 
-        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(call);
+        when(mockApi.convert(Matchers.<Experiment>anyObject(), Matchers.anyString())).thenReturn(call);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
         ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
-        ConvertedExperiment convert = sixpack.convert(participating);
+        ConvertedExperiment convert = sixpack.convert(participating, "test_kpi");
+
+        assertEquals(new ConvertedExperiment(sixpack, experiment), convert);
+    }
+
+    @Test
+    public void testConvertWithoutKpiSuccess() throws IOException {
+        Alternative selected = new Alternative("green");
+
+        Call<ConvertResponse> call = mock(Call.class);
+        when(call.execute()).thenReturn(retrofit2.Response.success(new ConvertResponse()));
+
+        when(mockApi.convert(Matchers.<Experiment>anyObject(), Matchers.anyString())).thenReturn(call);
+
+        Sixpack sixpack = new Sixpack(mockApi);
+        Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
+
+        ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
+
+        ConvertedExperiment convert = sixpack.convert(participating, null);
 
         assertEquals(new ConvertedExperiment(sixpack, experiment), convert);
     }
@@ -264,14 +283,14 @@ public class SixpackTest {
 
         Call<ConvertResponse> mockCall = mock(Call.class);
         when(mockCall.execute()).thenReturn(retrofit2.Response.<ConvertResponse>error(404, ResponseBody.create(MediaType.parse("application/json"), "{}")));
-        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(mockCall);
+        when(mockApi.convert(Matchers.<Experiment>anyObject(), Matchers.anyString())).thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
         ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
-        sixpack.convert(participating);
+        sixpack.convert(participating, "test_kpi");
     }
 
     @Test(expected = ConversionError.class)
@@ -280,14 +299,14 @@ public class SixpackTest {
 
         Call<ConvertResponse> mockCall = mock(Call.class);
         when(mockCall.execute()).thenThrow(new IOException());
-        when(mockApi.convert(Matchers.<Experiment>anyObject())).thenReturn(mockCall);
+        when(mockApi.convert(Matchers.<Experiment>anyObject(), Matchers.anyString())).thenReturn(mockCall);
 
         Sixpack sixpack = new Sixpack(mockApi);
         Experiment experiment = new Experiment(sixpack, "test-experience", new HashSet<Alternative>(), null, 1.0d);
 
         ParticipatingExperiment participating = new ParticipatingExperiment(sixpack, experiment, selected);
 
-        sixpack.convert(participating);
+        sixpack.convert(participating, "test_kpi");
     }
 
     @Test

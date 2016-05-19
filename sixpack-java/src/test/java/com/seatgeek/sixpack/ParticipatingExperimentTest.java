@@ -28,7 +28,7 @@ public class ParticipatingExperimentTest {
 
         participatingExperiment.convert();
 
-        verify(mockSixpack).convert(participatingExperiment);
+        verify(mockSixpack).convert(participatingExperiment, null);
     }
 
     @Test
