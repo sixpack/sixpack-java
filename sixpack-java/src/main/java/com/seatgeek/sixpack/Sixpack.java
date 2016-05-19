@@ -155,7 +155,7 @@ public class Sixpack {
      * Internal method used by {@link Experiment} to prefetch a selected alternative
      */
     PrefetchedExperiment prefetch(final Experiment experiment) {
-        logParticipate(experiment);
+        logPrefetch(experiment);
 
         try {
             Response<ParticipateResponse> response = api.participate(experiment,
@@ -331,6 +331,20 @@ public class Sixpack {
             );
         } else if (logLevel.isAtLeastDebug()) {
             logger.log(SIXPACK_LOG_TAG, String.format("Participating in Experiment: name=%s", experiment.name));
+        }
+    }
+
+    void logPrefetch(final Experiment experiment) {
+        if (logLevel.isAtLeastVerbose()) {
+            logger.log(
+                    SIXPACK_LOG_TAG,
+                    String.format(
+                            "Prefetching Experiment: name=%s, alternatives=%s, forcedChoice=%s, trafficFraction=%s",
+                            experiment.name, experiment.alternatives, experiment.forcedChoice, experiment.trafficFraction
+                    )
+            );
+        } else if (logLevel.isAtLeastDebug()) {
+            logger.log(SIXPACK_LOG_TAG, String.format("Prefetching Experiment: name=%s", experiment.name));
         }
     }
 
