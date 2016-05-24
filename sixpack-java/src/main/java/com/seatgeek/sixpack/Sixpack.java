@@ -34,7 +34,7 @@ public class Sixpack {
     /**
      * Default url for a {@link Sixpack} instance hosted with default configuration on the local machine
      */
-    public static final HttpUrl DEFAULT_URL = HttpUrl.parse("https://sixpack.dumpsterapp.mobi/");
+    public static final HttpUrl DEFAULT_URL = HttpUrl.parse("http://localhost:5000/");
 
     public static final String NAME_REGEX = "^[a-z0-9][a-z0-9\\-_ ]*$";
 
