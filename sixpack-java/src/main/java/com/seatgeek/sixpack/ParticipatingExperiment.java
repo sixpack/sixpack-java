@@ -33,10 +33,28 @@ public class ParticipatingExperiment {
      *
      * This call makes blocking network requests.
      *
+     * @return The converted experiment object.
+     *
      * @throws ConversionError if the client fails to convert
      */
     public ConvertedExperiment convert() {
-        return sixpack.convert(this);
+        return sixpack.convert(this, null);
+    }
+
+    /**
+     * Converts this experiment by notifying the Sixpack server that the user has completed the
+     * expected action
+     *
+     * This call makes blocking network requests.
+     *
+     * @param kpi The kpi of the conversion.
+     *
+     * @return The converted experiment object.
+     *
+     * @throws ConversionError if the client fails to convert
+     */
+    public ConvertedExperiment convert(String kpi) {
+        return sixpack.convert(this, kpi);
     }
 
     @Override

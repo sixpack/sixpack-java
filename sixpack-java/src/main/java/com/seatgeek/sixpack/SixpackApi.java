@@ -21,6 +21,7 @@ public interface SixpackApi {
 
     @GET("/convert")
     Call<ConvertResponse> convert(
-            @Query("experiment") Experiment experiment
+            @Query("experiment") Experiment experiment,
+            @Query("kpi") String kpi
     );
 }

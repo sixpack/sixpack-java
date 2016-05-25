@@ -1,6 +1,7 @@
 package com.seatgeek.sixpack.android;
 
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -23,6 +24,8 @@ public class SixpackActivity extends AppCompatActivity {
 
     @InjectView(R.id.colorful_button) Button colorfulButton;
 
+    private ParticipatingExperiment experiment = null;
+
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -31,29 +34,61 @@ public class SixpackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sixpack);
         ButterKnife.inject(this);
 
-        final ParticipatingExperiment participatingExperiment = buttonColor.participate();
+        new AsyncTask<Void, Void, Boolean>() {
 
-        if (SixpackModule.BUTTON_COLOR_RED.equals(participatingExperiment.selectedAlternative.name)) {
-            colorfulButton.setBackgroundColor(Color.RED);
-        } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(participatingExperiment.selectedAlternative.name)) {
-            colorfulButton.setBackgroundColor(Color.BLUE);
-        }
-
-        colorfulButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                v.setOnClickListener(null);
-
+            protected Boolean doInBackground(Void... voids) {
                 try {
-                    participatingExperiment.convert();
-
-                    Toast.makeText(SixpackActivity.this, "Converted!", Toast.LENGTH_SHORT).show();
-                } catch (ConversionError error) {
-                    Toast.makeText(SixpackActivity.this, "Nope!", Toast.LENGTH_SHORT).show();
-                }
+                    experiment = buttonColor.participate();
+                    return true;
+                } catch (Exception e) {}
+                return false;
             }
-        });
 
-        colorfulButton.setVisibility(View.VISIBLE);
+            @Override
+            protected void onPostExecute(Boolean success) {
+                if (success) {
+                    if (SixpackModule.BUTTON_COLOR_RED.equals(experiment.selectedAlternative.name)) {
+                        colorfulButton.setBackgroundColor(Color.RED);
+                    } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(experiment.selectedAlternative.name)) {
+                        colorfulButton.setBackgroundColor(Color.BLUE);
+                    }
+                    colorfulButton.setVisibility(View.VISIBLE);
+
+                    colorfulButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            v.setOnClickListener(null);
+
+                            new AsyncTask<Void, Void, Boolean>() {
+
+                                @Override
+                                protected Boolean doInBackground(Void... voids) {
+                                    try {
+                                        experiment.convert("click");
+                                        return true;
+                                    } catch (ConversionError error) {}
+                                    return false;
+                                }
+
+                                @Override
+                                protected void onPostExecute(Boolean success) {
+                                    if (success) {
+                                        Toast.makeText(SixpackActivity.this, "Converted!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(SixpackActivity.this, "Nope!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }.execute();
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Participation failed!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        }.execute();
     }
 }
