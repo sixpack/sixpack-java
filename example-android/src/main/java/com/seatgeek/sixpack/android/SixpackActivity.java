@@ -24,7 +24,7 @@ public class SixpackActivity extends AppCompatActivity {
 
     @InjectView(R.id.colorful_button) Button colorfulButton;
 
-    private ParticipatingExperiment mParticipatingExperiment = null;
+    private ParticipatingExperiment experiment = null;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +39,7 @@ public class SixpackActivity extends AppCompatActivity {
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
-                    mParticipatingExperiment = buttonColor.participate();
+                    experiment = buttonColor.participate();
                     return true;
                 } catch (Exception e) {}
                 return false;
@@ -48,9 +48,9 @@ public class SixpackActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
-                    if (SixpackModule.BUTTON_COLOR_RED.equals(mParticipatingExperiment.selectedAlternative.name)) {
+                    if (SixpackModule.BUTTON_COLOR_RED.equals(experiment.selectedAlternative.name)) {
                         colorfulButton.setBackgroundColor(Color.RED);
-                    } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(mParticipatingExperiment.selectedAlternative.name)) {
+                    } else if (SixpackModule.BUTTON_COLOR_BLUE.equals(experiment.selectedAlternative.name)) {
                         colorfulButton.setBackgroundColor(Color.BLUE);
                     }
                     colorfulButton.setVisibility(View.VISIBLE);
@@ -65,7 +65,7 @@ public class SixpackActivity extends AppCompatActivity {
                                 @Override
                                 protected Boolean doInBackground(Void... voids) {
                                     try {
-                                        mParticipatingExperiment.convert("click");
+                                        experiment.convert("click");
                                         return true;
                                     } catch (ConversionError error) {}
                                     return false;
