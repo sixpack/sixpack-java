@@ -10,7 +10,7 @@ import retrofit2.http.Query;
 
 public interface SixpackApi {
 
-    @GET("/participate")
+    @GET("participate")
     Call<ParticipateResponse> participate(
             @Query("experiment") Experiment experiment,
             @Query("alternatives") List<Alternative> alternatives,
@@ -19,7 +19,7 @@ public interface SixpackApi {
             @Query("prefetch") Boolean prefetch
     );
 
-    @GET("/convert")
+    @GET("convert")
     Call<ConvertResponse> convert(
             @Query("experiment") Experiment experiment,
             @Query("kpi") String kpi
